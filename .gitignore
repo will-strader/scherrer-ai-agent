@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+*.log
+
+# Virtual env
+.venv/
+env/
+venv/
+
+# Node & frontend junk
+node_modules/
+dist/
+
+# MacOS
+.DS_Store
+
+# Env & secrets
+backend/.env
+*.key

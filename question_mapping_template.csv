@@ -1,0 +1,56 @@
+question_mapping_template
+sheet,cell,text,is_question,json_key,answer_type,notes
+Bid Information,A1,Bid Submittal Information Checklist,No,,,
+Bid Information,A2,Project Name,yes,project_name,text,N/A if not found for any text answer type
+Bid Information,A3,Owner Name,Yes,owner_name,text,
+Bid Information,A4,Bid Date & Time:,yes,bid_date_time,date,"must be after pre_bid_date_time, format all date like MM/DD/YYY"
+Bid Information,A5,"Location/Address to
+turn in bid:",yes,location_address,location,"Format all locations like 1234 Main Street, City, State"
+Bid Information,B6,Yes,No,,,
+Bid Information,C6,No,no,,,
+Bid Information,A7,Bid turn in in person or online,yes,bid_turn_in,,either in person or online 
+Bid Information,A8,Public Opening?,yes,public_opening,yes/no,Format all yes/no by either typing yes or no 
+Bid Information,A9,Bid Bond Required?,Yes,bid_bond_required,Yes/no,
+Bid Information,D9,5 or 10%,yes,bid_bond_pct,number,number will be greater than zero
+Bid Information,A10,"Pre-Bid Conference
+/ Walk-Thru",yes,pre_bid_conference,Yes/no,
+Bid Information,D10,"Date, Time, Location:",yes,pre_bid_date_time,date/time/location,
+Bid Information,A11,Pre-Bid Mandatory?,yes,pre_bid_mandatory,yes/no,
+Bid Information,A12,Pre-Qualification?,yes,pre_qualification,yes/no,
+Bid Information,E12,AIA Form,,,,Is the pre-qualification on a standard AIA form
+Bid Information,A13,"# of copies of the
+bid form required?",yes,bid_form_copies,number,
+Bid Information,A14,"Subcontractor
+Listing Required?",yes,sub_listing_required,yes/no,
+Bid Information,A15,Unit Prices?,Yes,unit_prices,yes/no,
+Bid Information,D15,How Many?,yes,price_quantity,number,
+Bid Information,A16,Alternates?,yes,alternates,yes/no,
+Bid Information,D16,How Many?,yes,alternate_quantity,number,
+Bid Information,A17,"How do you handle
+“No change”?",yes,no_change,text,"if no answer is found, leave blank"
+Bid Information,A18,"How do you handle
+“No bid”?",yes,no_bid,text,"if no answer is found, leave blank"
+Bid Information,A19,Signature by President?,yes,president_signature,yes/no,
+Bid Information,A20,Signature by Secretary?,yes,secretary_signature,yes/no,
+Bid Information,A21,Signature by other?,yes,other_signature,yes/no,
+Bid Information,D21,Who?,yes,other_name,text,
+Bid Information,A22,Corporate Seal on bid form?,yes,seal_bid_form,yes/no,
+Bid Information,A23,Corporate Seal on Bond?,yes,seal_bond,yes/no,
+Bid Information,A24,Acknowledge Addendum on Bid form?,yes,addendum_bid_form,,
+Bid Information,A25,"Are we allowed to
+include clarifications",yes,clarifications,yes/no,
+Bid Information,A26,Help required turning in bid?,yes,help_required,yes/no,
+Bid Information,A27,Wage Scale required?,yes,wage_scale,yes/no,
+Bid Information,A28,SBE/DBE/TBE required?,yes,sbe_dbe_tbe,yes/no,
+Bid Information,A29,Liquated Damages?,yes,liquated_damages,yes/no,
+Bid Information,D29,If yes   $                /DAY,yes,damages_price,number,USD currency
+Bid Information,A30,Insurance requirements beyond company standard?,yes,insurance_req,yes/no,
+Bid Information,A31,Builder's Risk Insurance?,yes,risk_insurance,yes/no,by owner or by contractor
+Bid Information,A32,Project Tax Exempt?,yes,tax_exempt,yes/no,
+Bid Information,A33,"Owner Furnished
+scope items?",yes,scope_iems,yes/no,
+Bid Information,A34,Testing by GC?,yes,testing_gc,yes/no,
+Bid Information,D34,Which trades?,yes,trades,text,"List formatted like: item1, item2, item3"
+Bid Information,A35,Start date,yes,start_date,date,
+Bid Information,A36,Completion date,yes,completion_date,date,
+Bid Information,A37,Permit cost?,yes,permit_cost,yes/no,

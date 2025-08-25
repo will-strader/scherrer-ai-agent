@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AI Bid Assistant (MVP)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; }
+      .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+      .row { display: flex; gap: 12px; align-items: center; }
+      button { padding: 10px 14px; border-radius: 10px; border: 1px solid #bbb; cursor: pointer; }
+      pre { background: #f8f8f8; padding: 12px; border-radius: 10px; overflow: auto; }
+      .links a { margin-right: 12px; }
+    </style>
+  </head>
+  <body>
+    <h2>AI Bid Assistant (MVP)</h2>
+
+    <div class="card">
+      <form id="uploadForm">
+        <div class="row">
+          <input type="file" id="pdf" accept="application/pdf" required />
+          <button type="submit">Upload & Process</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="statusCard" class="card" style="display:none;">
+      <div>Status: <span id="status">—</span></div>
+      <div class="links" id="links"></div>
+      <pre id="debug"></pre>
+    </div>
+
+    <script>
+      const API = location.hostname === "localhost" || location.hostname === "127.0.0.1"
+        ? "http://127.0.0.1:8000"
+        : ""; // same-origin when deployed behind a proxy
+
+      const form = document.getElementById('uploadForm');
+      const statusCard = document.getElementById('statusCard');
+      const statusEl = document.getElementById('status');
+      const linksEl = document.getElementById('links');
+      const debugEl = document.getElementById('debug');
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        const file = document.getElementById('pdf').files[0];
+        if (!file) return;
+
+        const fd = new FormData();
+        fd.append('file', file);
+
+        const resp = await fetch(`${API}/process`, { method: 'POST', body: fd });
+        const data = await resp.json();
+
+        statusCard.style.display = 'block';
+        statusEl.textContent = data.status || 'queued';
+        linksEl.innerHTML = '';
+        debugEl.textContent = '';
+
+        // poll
+        const jobId = data.job_id;
+        const poll = setInterval(async () => {
+          const r = await fetch(`${API}/status/${jobId}`);
+          if (!r.ok) return;
+          const s = await r.json();
+          statusEl.textContent = s.status;
+
+          if (s.status === 'done' || s.status === 'error') {
+            clearInterval(poll);
+            if (s.output_paths?.json) {
+              const j = await fetch(`${API}${s.output_paths.json}`);
+              if (j.ok) {
+                const jdata = await j.json();
+                debugEl.textContent = JSON.stringify(jdata, null, 2);
+              }
+            }
+            if (s.output_paths?.excel) {
+              linksEl.innerHTML = `<a href="${API}${s.output_paths.excel}" download>Download Excel</a>`;
+            }
+            if (s.message) {
+              debugEl.textContent += `\n\n[message] ${s.message}`;
+            }
+          }
+        }, 1200);
+      };
+    </script>
+  </body>
+</html>
