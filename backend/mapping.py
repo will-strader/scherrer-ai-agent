@@ -6,7 +6,7 @@ from typing import List, Dict
 import chardet  # make sure 'chardet' is in requirements.txt
 
 REQUIRED_HEADERS = ["sheet","cell","text","is_question","json_key","answer_type","notes"]
-ALLOWED_TYPES = {"text","date","number","currency","yesno","list","email","phone"}
+ALLOWED_TYPES = {"text","date","number","currency","yesno","list","email","phone","location"}
 
 @dataclass
 class MapRow:
@@ -39,6 +39,7 @@ class Mapping:
             "list": {"type":"array", "items":{"type":"string"}},
             "email": {"type":"string", "format":"email"},
             "phone": {"type":"string"},
+            "location": {"type":"string"},
         }
         props = {}
         for r in self.question_rows:
@@ -70,6 +71,15 @@ def load_mapping(path: Path) -> Mapping:
     raw = path.read_bytes()
     enc = chardet.detect(raw).get("encoding") or "utf-8"
     text = raw.decode(enc, errors="replace")
+
+    # If the first line is a lone token (no typical delimiters) but the second line looks like a header,
+    # drop the first line to tolerate exports with a stray title row.
+    _lines = text.splitlines()
+    if len(_lines) >= 2:
+        first, second = _lines[0], _lines[1]
+        delims = [",", ";", "\t", "|"]
+        if all(d not in first for d in delims) and any(d in second for d in delims):
+            text = "\n".join(_lines[1:])
 
     # First try normal CSV
     rows: list[dict]
@@ -110,19 +120,60 @@ def load_mapping(path: Path) -> Mapping:
 
     # Build structured rows and validate keys/types
     key_re = re.compile(r"^[a-z0-9_]+$")
+    cell_re = re.compile(r"^[A-Za-z]{1,3}[0-9]{1,6}$")
+    warnings: list[str] = []
     out: list[MapRow] = []
     seen_keys: list[str] = []
 
     for r in norm_rows:
         isq = _norm_bool(r.get("is_question",""))
         key = (r.get("json_key","") or "").strip()
-        at  = (r.get("answer_type","") or "text").lower().strip()
+
+        at_raw = (r.get("answer_type", "") or "text").strip().lower()
+        # normalize common variants: remove spaces, slashes, hyphens for alias matching
+        at_simple = at_raw.replace(" ", "").replace("/", "").replace("-", "")
+        alias_map = {
+            "yesno": "yesno",
+            "yesn": "yesno",           # occasional typo
+            "yn": "yesno",
+            "boolean": "yesno",
+            "pct": "number",
+            "percentage": "number",
+            "percent": "number",
+            "money": "currency",
+            "usd": "currency",
+            "dollars": "currency",
+            "phonenumber": "phone",
+            "telephone": "phone",
+            "tel": "phone",
+            "emailaddress": "email",
+            "email": "email",
+            "e-mail": "email",
+            "locationaddress": "location",
+            "addr": "location",
+            # date/time combos & variants
+            "datetime": "date",
+            "dateandtime": "date",
+            "date_time": "date",
+            "datetimelocation": "text",   # treat combined date/time/location as free text
+            "dateandtimelocation": "text",
+            "date/time": "date",
+            "date-time": "date",
+        }
+        at = alias_map.get(at_simple, at_raw)
 
         if isq:
             if key and not key_re.match(key):
                 raise ValueError(f"Invalid json_key '{key}' (use lowercase/underscores only).")
             if at not in ALLOWED_TYPES:
                 raise ValueError(f"Unknown answer_type '{at}' for key '{key}'.")
+
+        # Warn on missing/invalid cell for question rows (do not fail the load)
+        if isq:
+            if not (r.get("cell", "").strip()):
+                warnings.append(f"Missing cell for question key '{key}' on sheet '{(r.get('sheet','') or 'Bid Information').strip()}'")
+            elif not cell_re.match((r.get("cell", "") or "").strip()):
+                warnings.append(f"Suspicious cell address '{(r.get('cell','') or '').strip()}' for key '{key}'")
 
         out.append(MapRow(
             sheet=(r.get("sheet","") or "Bid Information").strip(),
@@ -140,5 +191,10 @@ def load_mapping(path: Path) -> Mapping:
     dups = {k for k in seen_keys if seen_keys.count(k) > 1}
     if dups:
         raise ValueError(f"Duplicate json_key(s): {sorted(dups)}")
+
+    if warnings:
+        print("[mapping] Warnings:")
+        for w in warnings:
+            print(f"  - {w}")
 
     return Mapping(out)

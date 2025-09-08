@@ -1,4 +1,3 @@
-question_mapping_template
 sheet,cell,text,is_question,json_key,answer_type,notes
 Bid Information,A1,Bid Submittal Information Checklist,No,,,
 Bid Information,A2,Project Name,yes,project_name,text,N/A if not found for any text answer type
