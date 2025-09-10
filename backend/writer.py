@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Dict
 from datetime import datetime
 from openpyxl import load_workbook
+import logging
 
 from .mapping import Mapping
 
@@ -68,35 +69,86 @@ def _coerce_for_cell(answer_value: Any, answer_type: str):
   # text, email, phone, default
   return answer_value if answer_value is not None else None
 
-def fill_template(excel_template: Path, mapping: Mapping, answers: Dict[str, Any], out_path: Path) -> Path:
+def _targets(row):
   """
-  Open the real Excel template, write values for all mapping rows marked as questions,
-  preserve formatting/formulas, and save to out_path.
+  Given a mapping row, determine the worksheet, row index, and target columns for question and answer.
+  Returns (ws, row_idx, col_q, col_a, col_yes, col_no)
   """
-  wb = load_workbook(excel_template, data_only=False, keep_vba=False)
+  # Pick sheet (fallback to first sheet if mapping name not found)
+  wb = row._workbook  # must be set by fill_template
+  sheet_name = row.sheet if row.sheet in wb.sheetnames else wb.sheetnames[0]
+  ws = wb[sheet_name]
+  # Parse row.cell to get row index
+  # row.cell is like "B7" or "C10"
+  from openpyxl.utils.cell import coordinate_from_string, column_index_from_string
+  cell = row.cell
+  if not cell:
+    return ws, None, None, None, None, None
+  col, idx = coordinate_from_string(cell)
+  row_idx = idx
+  # Column A: question, B: answer, C: Yes, D: No
+  return ws, row_idx, 1, 2, 3, 4
 
-  # Iterate over mapping rows and drop values into the appropriate cells
+def _write_yes_no(ws, row_idx, answer):
+  yes_val = None
+  no_val = None
+  norm = _normalize_yesno(answer)
+  if norm == "Yes":
+    yes_val = "Yes"
+    no_val = ""
+  elif norm == "No":
+    yes_val = ""
+    no_val = "No"
+  else:
+    yes_val = norm or ""
+    no_val = ""
+  ws.cell(row=row_idx, column=3, value=yes_val)
+  ws.cell(row=row_idx, column=4, value=no_val)
+
+def _write_text(ws, row_idx, value, answer_type):
+  cell = ws.cell(row=row_idx, column=2)
+  val = _coerce_for_cell(value, answer_type)
+  cell.value = val
+  if answer_type and answer_type.lower().strip() == "date":
+    if hasattr(val, "year") and hasattr(val, "month") and hasattr(val, "day"):
+      cell.number_format = "mm/dd/yyyy"
+
+def fill_template(mapping: Mapping, answers: Dict[str, Any], out_path: Path, excel_template: Path | None = None) -> Path:
+  """
+  Loads the Excel template (from `excel_template` if provided, otherwise from config.EXCEL_TEMPLATE),
+  preserves all question text in column A,
+  and writes answers into column B for text/date/number/percent, or C/D for yes/no.
+  """
+  from .config import EXCEL_TEMPLATE
+  tpl = excel_template or EXCEL_TEMPLATE
+  wb = load_workbook(tpl, data_only=False, keep_vba=False)
+
+  # Attach workbook to each mapping row for _targets
+  for row in mapping.question_rows:
+    row._workbook = wb
+
   for row in mapping.question_rows:
     key = row.json_key
     if not key:
+      logging.warning(f"Skipping row with no json_key at {row.cell}")
       continue
+    ws, row_idx, col_q, col_a, col_yes, col_no = _targets(row)
+    if ws is None or row_idx is None:
+      continue
+    # Preserve original question text in column A
+    orig_q = ws.cell(row=row_idx, column=col_q).value
+    ws.cell(row=row_idx, column=col_q, value=orig_q)
     value = answers.get(key, None)
-    value = _coerce_for_cell(value, row.answer_type)
-
-    # Pick sheet (fallback to first sheet if mapping name not found)
-    sheet_name = row.sheet if row.sheet in wb.sheetnames else wb.sheetnames[0]
-    ws = wb[sheet_name]
-
-    if not row.cell:
-      # If a cell wasn't specified, skip safely
-      continue
+    answer_type = (row.answer_type or "text").lower().strip()
+    if value is None:
+      logging.warning(f"No answer provided for key {key} (cell {row.cell})")
     try:
-      ws[row.cell].value = value
-      # If it's a parsed date, set a simple date number format so it renders nicely
-      if hasattr(value, "year") and hasattr(value, "month") and hasattr(value, "day"):
-        ws[row.cell].number_format = "mm/dd/yyyy"
-    except Exception:
-      # Don't fail the whole job if one mapping cell is off
+      if answer_type == "yesno":
+        _write_yes_no(ws, row_idx, value)
+      else:
+        _write_text(ws, row_idx, value, answer_type)
+    except Exception as e:
+      logging.warning(f"Failed to write answer for key {key} at {row.cell}: {e}")
       continue
 
   # Ensure parent directory exists and save

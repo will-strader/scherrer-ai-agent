@@ -47,6 +47,19 @@ class Mapping:
             props[r.json_key] = tmap.get(at, {"type":"string"})
         return {"type":"object","properties":props}
 
+    @property
+    def by_sheet(self) -> Dict[str, List[MapRow]]:
+        sheet_map: Dict[str, List[MapRow]] = {}
+        for row in self.rows:
+            sheet_map.setdefault(row.sheet, []).append(row)
+        return sheet_map
+
+    def by_json_key(self) -> Dict[str, MapRow]:
+        return {row.json_key: row for row in self.rows if row.json_key}
+
+    def __repr__(self) -> str:
+        return f"<Mapping rows={len(self.rows)} questions={len(self.question_rows)} keys={self.json_keys()[:5]}...>"
+
 def _sniff_and_split_singlecol(lines: list[str]) -> list[dict]:
     # Try common delimiters to split a single “all-in-one” column file
     for delim in [",",";","\t","|"]:
@@ -197,4 +210,4 @@ def load_mapping(path: Path) -> Mapping:
         for w in warnings:
             print(f"  - {w}")
 
-    return Mapping(out)
+    return Mapping(rows=out)

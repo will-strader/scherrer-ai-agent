@@ -13,7 +13,7 @@ from .models import ProcessResponse, JobStatus
 from .extractor import extract_answers
 from .writer import fill_template
 from .mapping import load_mapping
-from .config import MAPPING_CSV, EXCEL_TEMPLATE
+from .config import MAPPING_CSV
 
 load_dotenv()
 
@@ -38,6 +38,10 @@ JOBS = {}  # job_id -> JobStatus
 @app.get("/", response_class=HTMLResponse)
 def home():
     return "<h3>AI Bid Assistant Backend</h3><p>POST /process with a PDF to get started.</p>"
+
+@app.get("/ping")
+def ping():
+    return {"ok": True}
 
 @app.post("/process", response_model=ProcessResponse)
 async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
@@ -78,7 +82,7 @@ def _process_job(job_id: str, pdf_path: Path):
 
         # 4) fill the real Excel template (preserves formatting/formulas)
         xlsx_out = OUTPUTS / f"{pdf_path.stem}__{job_id}.xlsx"
-        fill_template(EXCEL_TEMPLATE, mapping, answers, xlsx_out)
+        fill_template(mapping, answers, xlsx_out)
 
         JOBS[job_id]["output_paths"] = {
             "json": f"/download/{json_out.name}",

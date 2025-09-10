@@ -16,12 +16,25 @@ OUTPUTS.mkdir(parents=True, exist_ok=True)
 # Env
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 OPENAI_PROJECT = os.getenv("OPENAI_PROJECT", "").strip()
-MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-5.1-mini").strip()
+MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-4o-mini").strip()
 RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "60"))
 
-# These can be absolute or relative to backend/
-MAPPING_CSV    = Path(os.getenv("MAPPING_CSV", BASE / "../question_mapping_template.csv")).resolve()
-EXCEL_TEMPLATE = Path(os.getenv("EXCEL_TEMPLATE", BASE / "../bid checklist.xlsx")).resolve()
+# Explicitly anchor repo root to the folder containing backend/
+REPO_ROOT = (Path(__file__).resolve().parent / "..").resolve()
+print(f"[config] Repo root resolved to: {REPO_ROOT}")
+
+def _resolve_repo_path(val: str, default_name: str) -> Path:
+    """Resolve a path that may be absolute or relative to the repo root."""
+    if not val or val.strip() == "":
+        p = REPO_ROOT / default_name
+    else:
+        p = Path(val)
+        if not p.is_absolute():
+            p = (REPO_ROOT / p).resolve()
+    return p.resolve()
+
+MAPPING_CSV    = _resolve_repo_path(os.getenv("MAPPING_CSV") or "", "question_mapping_template.csv")
+EXCEL_TEMPLATE = _resolve_repo_path(os.getenv("EXCEL_TEMPLATE") or "", "bid checklist.xlsx")
 
 print(f"[config] Using model: {MODEL_NAME}")
 print(f"[config] Mapping CSV: {MAPPING_CSV}")
