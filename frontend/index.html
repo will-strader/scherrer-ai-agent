@@ -10,6 +10,9 @@
       button { padding: 10px 14px; border-radius: 10px; border: 1px solid #bbb; cursor: pointer; }
       pre { background: #f8f8f8; padding: 12px; border-radius: 10px; overflow: auto; }
       .links a { margin-right: 12px; }
+      .spinner { display: none; width: 24px; height: 24px; border: 3px solid #ddd; border-top-color: #555; border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .error { color: #b00020; background: #ffecec; padding: 8px 12px; border-radius: 10px; border: 1px solid #f4bdbd; margin-top: 8px; }
     </style>
   </head>
   <body>
@@ -25,6 +28,11 @@
     </div>
 
     <div id="statusCard" class="card" style="display:none;">
+      <div class="row">
+        <div class="spinner" id="spinner" aria-label="Processing"></div>
+        <div id="progressMsg" style="font-size: 14px; color: #555;">Waiting to start…</div>
+      </div>
+      <div id="errorBox" class="error" style="display:none;"></div>
       <div>Status: <span id="status">—</span></div>
       <div class="links" id="links"></div>
       <pre id="debug"></pre>
@@ -40,46 +48,96 @@
       const statusEl = document.getElementById('status');
       const linksEl = document.getElementById('links');
       const debugEl = document.getElementById('debug');
+      const spinner = document.getElementById('spinner');
+      const errorBox = document.getElementById('errorBox');
+      const progressMsg = document.getElementById('progressMsg');
+      const submitBtn = document.querySelector('button[type="submit"]');
 
       form.onsubmit = async (e) => {
         e.preventDefault();
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
         const file = document.getElementById('pdf').files[0];
         if (!file) return;
+
+        // UI: show spinner and disable submit
+        spinner.style.display = 'inline-block';
+        progressMsg.textContent = 'Uploading PDF…';
+        submitBtn.disabled = true;
 
         const fd = new FormData();
         fd.append('file', file);
 
-        const resp = await fetch(`${API}/process`, { method: 'POST', body: fd });
+        let resp;
+        try {
+          resp = await fetch(`${API}/process`, { method: 'POST', body: fd });
+        } catch (err) {
+          spinner.style.display = 'none';
+          submitBtn.disabled = false;
+          errorBox.textContent = `Network error while starting the job: ${err}`;
+          errorBox.style.display = 'block';
+          return;
+        }
+        if (!resp.ok) {
+          spinner.style.display = 'none';
+          submitBtn.disabled = false;
+          errorBox.textContent = `Failed to start job: ${resp.status} ${resp.statusText}`;
+          errorBox.style.display = 'block';
+          return;
+        }
+
         const data = await resp.json();
 
         statusCard.style.display = 'block';
         statusEl.textContent = data.status || 'queued';
         linksEl.innerHTML = '';
         debugEl.textContent = '';
+        progressMsg.textContent = 'Processing…';
 
-        // poll
         const jobId = data.job_id;
         const poll = setInterval(async () => {
-          const r = await fetch(`${API}/status/${jobId}`);
-          if (!r.ok) return;
-          const s = await r.json();
-          statusEl.textContent = s.status;
+          try {
+            const r = await fetch(`${API}/status/${jobId}`);
+            if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+            const s = await r.json();
+            statusEl.textContent = s.status;
 
-          if (s.status === 'done' || s.status === 'error') {
-            clearInterval(poll);
-            if (s.output_paths?.json) {
-              const j = await fetch(`${API}${s.output_paths.json}`);
-              if (j.ok) {
-                const jdata = await j.json();
-                debugEl.textContent = JSON.stringify(jdata, null, 2);
+            if (s.status === 'done') {
+              clearInterval(poll);
+              spinner.style.display = 'none';
+              submitBtn.disabled = false;
+              progressMsg.textContent = s.message || 'Completed.';
+              if (s.output_paths?.json) {
+                try {
+                  const j = await fetch(`${API}${s.output_paths.json}`);
+                  if (j.ok) {
+                    const jdata = await j.json();
+                    debugEl.textContent = JSON.stringify(jdata, null, 2);
+                  }
+                } catch {}
               }
+              if (s.output_paths?.excel) {
+                linksEl.innerHTML = `<a href="${API}${s.output_paths.excel}" download>Download Excel</a>`;
+              }
+            } else if (s.status === 'error') {
+              clearInterval(poll);
+              spinner.style.display = 'none';
+              submitBtn.disabled = false;
+              progressMsg.textContent = s.message || 'Error.';
+              errorBox.textContent = s.message || 'An unknown error occurred during processing.';
+              errorBox.style.display = 'block';
+            } else {
+              // queued | processing
+              progressMsg.textContent = s.status + (s.message ? `: ${s.message}` : '');
             }
-            if (s.output_paths?.excel) {
-              linksEl.innerHTML = `<a href="${API}${s.output_paths.excel}" download>Download Excel</a>`;
-            }
-            if (s.message) {
-              debugEl.textContent += `\n\n[message] ${s.message}`;
-            }
+          } catch (err) {
+            clearInterval(poll);
+            spinner.style.display = 'none';
+            submitBtn.disabled = false;
+            progressMsg.textContent = 'Error.';
+            errorBox.textContent = `Error fetching status: ${err}`;
+            errorBox.style.display = 'block';
           }
         }, 1200);
       };

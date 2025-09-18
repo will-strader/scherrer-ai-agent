@@ -3,6 +3,7 @@ import uuid
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
+import asyncio
 
 from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
@@ -10,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 from .models import ProcessResponse, JobStatus
-from .extractor import extract_answers
+from .extractor import extract_answers, extract_answers_async
 from .writer import fill_template
 from .mapping import load_mapping
 from .config import MAPPING_CSV
@@ -63,22 +64,26 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
         "message": None,
     }
 
-    background_tasks.add_task(_process_job, job_id, pdf_path)
+    asyncio.create_task(_process_job(job_id, pdf_path))
     return ProcessResponse(job_id=job_id, status="queued")
 
-def _process_job(job_id: str, pdf_path: Path):
+async def _process_job(job_id: str, pdf_path: Path):
     try:
         JOBS[job_id]["status"] = "processing"
+        JOBS[job_id]["message"] = "Loading mapping"
 
         # 1) load mapping (handles your Numbers/CSV quirks)
         mapping = load_mapping(MAPPING_CSV)
+        JOBS[job_id]["message"] = "Extracting answers from PDF"
 
         # 2) extract answers from the PDF using OpenAI (returns dict keyed by json_key)
-        answers = extract_answers(pdf_path, mapping)
+        answers = await extract_answers_async(pdf_path, mapping)
+        JOBS[job_id]["message"] = "Writing JSON results"
 
         # 3) write raw JSON for debugging/auditing
         json_out = OUTPUTS / f"{pdf_path.stem}__{job_id}.json"
         json_out.write_text(json.dumps(answers, indent=2))
+        JOBS[job_id]["message"] = "Filling Excel template"
 
         # 4) fill the real Excel template (preserves formatting/formulas)
         xlsx_out = OUTPUTS / f"{pdf_path.stem}__{job_id}.xlsx"
@@ -88,6 +93,7 @@ def _process_job(job_id: str, pdf_path: Path):
             "json": f"/download/{json_out.name}",
             "excel": f"/download/{xlsx_out.name}",
         }
+        JOBS[job_id]["message"] = "Completed"
         JOBS[job_id]["status"] = "done"
     except Exception as e:
         JOBS[job_id]["status"] = "error"

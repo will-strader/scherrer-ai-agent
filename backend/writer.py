@@ -56,6 +56,9 @@ def _normalize_yesno(value: Any) -> str | None:
 
 def _coerce_for_cell(answer_value: Any, answer_type: str):
   at = (answer_type or "text").lower().strip()
+  # Filter out "null" strings
+  if isinstance(answer_value, str) and answer_value.strip().lower() == "null":
+    return None
   if at == "date":
     return _try_parse_date(answer_value)
   if at in ("number", "currency"):
