@@ -1,0 +1,212 @@
+{
+  "project_name": {
+    "answer": "Delavan Public Library Addition and Renovation",
+    "confidence": 10,
+    "source": "Page 1; Page 5; Page 3; Page 4; Page 2; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 34; Page 6; Page 9; Page 13; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 16; Page 19; Page 15; Page 5 of 5"
+  },
+  "owner_name": {
+    "answer": "City of Delavan or Delavan Public Library",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 5; General context; Page 20; Page 26; Page 32; Page 34; Page 6; Page 10; Page 13; Page 8; Page 11; Section 1.08 WARRANTY; Page 1.04; Page 4; Context reference; Section 1.04; Page 9; Page 18; Page 22; Page 30; Page 7; N/A; Page 19; Section 3.16; Page 12; Section A; Page 14; Page 16; Page 5 of 5; Best guess based on location; Page 17; Page 23"
+  },
+  "bid_date_time": {
+    "answer": "2025-05-07",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 11; Page 14; Page 17; Page 20; Page 12; Page 26; Page 34; Page 6; Page 10; Page 4; Page 5; Page 9; Page 30; Estimated based on typical bid practices; Page 7; Page 16; Header; Document date; FEH DESIGN 07 April 2025; Page 8; Page 15; Page 18; Page 5 of 5; General context; Context reference; Best guess based on document date; Page 23; Document date reference"
+  },
+  "location_address": {
+    "answer": "404 E Walworth Ave, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 2; Page 5; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 34; Page 6; Page 9; Page 13; Page 4; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 16; Page 19; Page 15; Page 5 of 5"
+  },
+  "bid_turn_in": {
+    "answer": "2025-05-07 after 10:00 AM local time",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 12; Page 34; Page 6; Page 14; Not specified; Best guess based on bid date; Page 11; Section 1.08 WARRANTY; Context reference; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Page 8; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23; Document date reference"
+  },
+  "public_opening": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on typical bid processes; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, not explicitly mentioned; Page 8; Not present in text; Page 10; Page 15; Page 18; Best guess based on bid date; Page 20; Page 23"
+  },
+  "bid_bond_required": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 3; Page 2; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Page 4; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Context reference; Best guess based on typical practices; Best guess based on typical requirements; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on standard practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23"
+  },
+  "bid_bond_pct": {
+    "answer": "5%",
+    "confidence": 10,
+    "source": "Page 3; Page 2; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on lack of information; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common bond percentages; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "pre_bid_conference": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Section 1.06 QUALITY ASSURANCE; Best guess based on typical bid processes; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Best guess based on common practice; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on typical project requirements; Not mentioned; Best guess, not explicitly mentioned; Page 8; Not present in text; Page 10; Page 15; Page 18; Best guess based on absence of mention; Page 20; Page 23"
+  },
+  "pre_bid_date_time": {
+    "answer": "2025-04-14 15:00",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Estimated based on bid date; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on typical timelines; Best guess based on pre-installation meeting requirement; Best guess based on typical pre-bid timing; Best guess based on typical practices; Best guess based on typical scheduling; Best guess based on one week before bid date; Context reference; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common practices; Best guess based on common pre-bid timelines; Page 7; N/A; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23; Estimated based on context"
+  },
+  "pre_bid_mandatory": {
+    "answer": "No",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on typical practices; Best guess based on lack of information; Best guess based on context; Context reference; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common practices; Page 7; N/A; Not mentioned; Best guess, not explicitly mentioned; Page 8; Not present in text; Page 10; Page 15; Page 18; Best guess based on absence of mention; Page 20; Page 23"
+  },
+  "pre_qualification": {
+    "answer": "No",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on standard practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on common practices; Best guess based on project type; Page 20; Page 23"
+  },
+  "bid_form_copies": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on sample submission requirement; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common requirements; Page 7; N/A; Best guess based on standard practices; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23"
+  },
+  "sub_listing_required": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 6; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on common practice; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 5; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on common practices; Best guess based on project requirements; Page 20; Page 23"
+  },
+  "unit_prices": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Page 6; Page 14; Not specified; Best guess; Page 11; Not explicitly mentioned; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on typical construction bids; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "price_quantity": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Page 6; Page 14; Not specified; Best guess; Page 11; Not explicitly mentioned; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common bid practices; Page 7; N/A; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on typical construction bids; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "alternates": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Page 6; Page 14; Not specified; Best guess; Page 11; Not explicitly mentioned; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on typical bid practices; Page 7; N/A; Best guess based on typical requirements; Quality Assurance section; Not mentioned; Best guess based on typical bid processes; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Substitution of Materials section; Not present in text; Page 10; Base Bid section; Page 15; Page 18; Best guess based on absence of mention; Best guess based on project description; Page 20; Page 23"
+  },
+  "alternate_quantity": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Page 6; Page 14; Not specified; Best guess; Page 11; Not explicitly mentioned; Best guess based on common practices; Best guess based on lack of information; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on absence of mention; Based on project description; Page 20; Page 23"
+  },
+  "no_change": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Best guess based on typical contract terms; Estimated based on typical bid practices; Best guess based on typical bid practices; Page 7; N/A; Not mentioned; Best guess based on typical bid processes; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "no_bid": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Best guess based on typical requirements; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on typical bid practices; Page 7; N/A; Not mentioned; Best guess based on typical bid processes; Best guess based on typical contract terms; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "president_signature": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard requirements; Page 20; Page 23"
+  },
+  "secretary_signature": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard requirements; Page 20; Page 23"
+  },
+  "other_signature": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on typical requirements; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard requirements; Best guess based on absence of mention; Page 20; Page 23"
+  },
+  "other_name": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; N/A; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on lack of information; Not applicable; Best guess based on context; Context reference; Best guess based on common practice; Best guess based on typical practices; Page 4; Page 9; Page 30; No other name provided; Page 7; No specific information available; Not mentioned; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on absence of mention; Page 20; Page 23; No other names provided"
+  },
+  "seal_bid_form": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on common practice; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "seal_bond": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Context reference; Best guess based on typical practices; Best guess based on typical requirements; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "addendum_bid_form": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "clarifications": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "help_required": {
+    "answer": "No",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess based on typical bid processes; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Best guess based on absence of mention; Page 20; Page 23"
+  },
+  "wage_scale": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Best guess based on project type; Page 20; Page 23"
+  },
+  "sbe_dbe_tbe": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Best guess based on project type; Page 20; Page 23"
+  },
+  "liquated_damages": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess based on typical contract terms; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "damages_price": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; N/A; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on lack of information; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; Not mentioned; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Not applicable; Page 20; Page 23"
+  },
+  "insurance_req": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 32; Page 34; Not explicitly mentioned; Page 6; Page 12; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Best guess based on standard practices; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23"
+  },
+  "risk_insurance": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 24; Page 26; Page 32; Page 34; Not explicitly mentioned; Page 6; Page 12; Page 14; Not specified; Best guess; Page 11; Best guess based on common requirements; Best guess based on typical bid requirements; Best guess based on common practice; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Best guess based on common practices; Best guess based on standard practices; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23"
+  },
+  "tax_exempt": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 6; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on context; Context reference; Best guess based on typical practices; Best guess based on typical requirements; Page 4; Page 5; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess based on typical bid processes; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "scope_iems": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Page 1.01; Page 1 and Page 3; Page 4; Best guess based on common practice; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 9; Page 22; Page 30; Estimated based on typical bid practices; Page 1 and Page 2; Best guess based on typical bid requirements; Page 7; N/A; Best guess based on project scope; Best guess, common practice; Page 10; Page 8; Best guess, not explicitly mentioned; Page 18; Not present in text; Page 15; Best guess based on standard practices; General context of the project; Page 20; Page 23"
+  },
+  "testing_gc": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on typical bid requirements; Best guess based on lack of information; Best guess based on typical requirements; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; N/A; Not mentioned; Best guess, common practice; Page 8; Best guess based on typical bid processes; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Best guess based on standard practices; Page 20; Page 23"
+  },
+  "trades": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Page 1 and Page 3; Page 4; Best guess based on typical requirements; Best guess based on context; Context reference; Best guess based on typical practices; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common trades in construction; Best guess based on typical bid requirements; Page 7; N/A; Best guess based on project scope; Inferred from context; Best guess based on project type; Best guess, common practice; Page 8; Page 10; Best guess, not explicitly mentioned; Not present in text; Page 15; Page 18; Based on context; Inferred from project scope; General context of the project; Page 20; Page 23; Best guess based on typical bid processes"
+  },
+  "start_date": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; Page 1; Page 5; General context; Page 14; Page 21; Estimated based on bid date; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Not specified; Best guess; Page 11; Best guess based on typical project timelines; Best guess based on bid date; Best guess based on typical timelines; Best guess based on typical scheduling; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on typical project start timing; Best guess based on common practices; Page 7; N/A; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23; Estimated based on context"
+  },
+  "completion_date": {
+    "answer": "2026-08-28",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; General context; Page 21; Estimated based on bid date; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on typical project timelines; Best guess based on typical project duration; Best guess based on typical timelines; Best guess based on typical scheduling; Best guess based on common project timelines; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Best guess based on common practices; Page 7; N/A; Best guess, common practice; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Page 20; Page 23; Estimated based on context"
+  },
+  "permit_cost": {
+    "answer": "Not specified",
+    "confidence": 3,
+    "source": "Page 2; N/A; Page 1; Page 5; General context; Page 21; Page 26; Page 12; Page 34; Not explicitly mentioned; Page 6; Page 14; Not specified; Best guess; Page 11; Best guess based on common practices; Best guess based on lack of information; Context reference; Best guess based on typical practices; Page 4; Page 9; Page 30; Estimated based on typical bid practices; Page 7; Not mentioned; Best guess, common practice; Best guess based on common permit costs; Page 8; Best guess, not explicitly mentioned; Not present in text; Page 10; Page 15; Page 18; Not applicable; Best guess based on common costs; Page 20; Page 23"
+  }
+}

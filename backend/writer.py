@@ -5,6 +5,83 @@ from datetime import datetime
 from openpyxl import load_workbook
 import logging
 
+def _coerce_confidence(val: Any) -> int:
+  """Coerce a confidence value to an integer 1..10. Defaults to 3 if missing/invalid."""
+  try:
+    if val is None:
+      return 3
+    if isinstance(val, (int, float)):
+      n = int(round(float(val)))
+    else:
+      s = str(val).strip()
+      if not s:
+        return 3
+      # extract leading number if present
+      num = "".join(ch for ch in s if (ch.isdigit() or ch == "."))
+      n = int(round(float(num))) if num else 3
+    if n < 1:
+      return 1
+    if n > 10:
+      return 10
+    return n
+  except Exception:
+    return 3
+
+def _extract_structured(answer_value: Any) -> tuple[Any, int, str]:
+  """Accepts either a scalar answer or a dict with keys like
+  {answer|value|text, confidence, source|page|source_page|source_pages}.
+  Returns (value, confidence:int 1..10, source:str)."""
+  # Defaults
+  conf = 3
+  source = "Unknown"
+
+  if isinstance(answer_value, dict):
+    # value
+    val = (answer_value.get("answer") or
+           answer_value.get("value") or
+           answer_value.get("text") or
+           answer_value.get("result") or
+           None)
+    if val is None:
+      val = "Unknown"
+    # confidence
+    conf = _coerce_confidence(answer_value.get("confidence"))
+    # source / page(s)
+    src = (answer_value.get("source") or
+           answer_value.get("page") or
+           answer_value.get("source_page") or
+           answer_value.get("source_pages") or
+           None)
+    if src is None or src == "":
+      source = "Unknown"
+    elif isinstance(src, (list, tuple)):
+      # Join multiple pages
+      source = ", ".join(f"Page {p}" if isinstance(p, (int, float)) else str(p) for p in src)
+    elif isinstance(src, (int, float)):
+      source = f"Page {int(src)}"
+    else:
+      source = str(src)
+    return val, conf, source
+
+  # Non-dict: just a plain value
+  val = answer_value if answer_value is not None else "Unknown"
+  return val, conf, source
+
+def _write_conf_source(ws, row_idx: int, conf: int, source: str):
+  """Write Confidence (col E) and Source (col F)."""
+  # Ensure confidence between 1 and 10, default 3
+  if not isinstance(conf, int):
+    conf = 3
+  if conf < 1:
+    conf = 1
+  if conf > 10:
+    conf = 10
+  # Ensure source is a non-empty string
+  if source is None or str(source).strip() == "":
+    source = "Unknown"
+  ws.cell(row=row_idx, column=5, value=conf)
+  ws.cell(row=row_idx, column=6, value=source)
+
 from .mapping import Mapping
 
 def _try_parse_number(value: Any) -> Any:
@@ -75,22 +152,21 @@ def _coerce_for_cell(answer_value: Any, answer_type: str):
 def _targets(row):
   """
   Given a mapping row, determine the worksheet, row index, and target columns for question and answer.
-  Returns (ws, row_idx, col_q, col_a, col_yes, col_no)
+  Returns (ws, row_idx, col_q, col_a, col_yes, col_no, col_conf, col_src)
   """
   # Pick sheet (fallback to first sheet if mapping name not found)
   wb = row._workbook  # must be set by fill_template
   sheet_name = row.sheet if row.sheet in wb.sheetnames else wb.sheetnames[0]
   ws = wb[sheet_name]
   # Parse row.cell to get row index
-  # row.cell is like "B7" or "C10"
-  from openpyxl.utils.cell import coordinate_from_string, column_index_from_string
+  from openpyxl.utils.cell import coordinate_from_string
   cell = row.cell
   if not cell:
-    return ws, None, None, None, None, None
+    return ws, None, None, None, None, None, None, None
   col, idx = coordinate_from_string(cell)
   row_idx = idx
-  # Column A: question, B: answer, C: Yes, D: No
-  return ws, row_idx, 1, 2, 3, 4
+  # Column A: question, B: answer, C: Yes, D: No, E: Confidence, F: Source
+  return ws, row_idx, 1, 2, 3, 4, 5, 6
 
 def _write_yes_no(ws, row_idx, answer):
   yes_val = None
@@ -135,21 +211,26 @@ def fill_template(mapping: Mapping, answers: Dict[str, Any], out_path: Path, exc
     if not key:
       logging.warning(f"Skipping row with no json_key at {row.cell}")
       continue
-    ws, row_idx, col_q, col_a, col_yes, col_no = _targets(row)
+    ws, row_idx, col_q, col_a, col_yes, col_no, col_conf, col_src = _targets(row)
     if ws is None or row_idx is None:
       continue
     # Preserve original question text in column A
     orig_q = ws.cell(row=row_idx, column=col_q).value
     ws.cell(row=row_idx, column=col_q, value=orig_q)
-    value = answers.get(key, None)
+
+    raw_value = answers.get(key, None)
+    value, conf, src = _extract_structured(raw_value)
+
+    # Ensure no literal "null" written for answer
     answer_type = (row.answer_type or "text").lower().strip()
-    if value is None:
-      logging.warning(f"No answer provided for key {key} (cell {row.cell})")
+
     try:
       if answer_type == "yesno":
         _write_yes_no(ws, row_idx, value)
       else:
         _write_text(ws, row_idx, value, answer_type)
+      # Confidence & Source for every row, always write even if empty
+      _write_conf_source(ws, row_idx, conf, src)
     except Exception as e:
       logging.warning(f"Failed to write answer for key {key} at {row.cell}: {e}")
       continue

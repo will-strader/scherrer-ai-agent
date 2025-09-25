@@ -71,23 +71,48 @@ async def _process_job(job_id: str, pdf_path: Path):
     try:
         JOBS[job_id]["status"] = "processing"
         JOBS[job_id]["message"] = "Loading mapping"
+        print(f"[{job_id}] Loading mapping")
 
         # 1) load mapping (handles your Numbers/CSV quirks)
         mapping = load_mapping(MAPPING_CSV)
-        JOBS[job_id]["message"] = "Extracting answers from PDF"
+        JOBS[job_id]["message"] = "Mapping loaded"
+        print(f"[{job_id}] Mapping loaded")
 
         # 2) extract answers from the PDF using OpenAI (returns dict keyed by json_key)
-        answers = await extract_answers_async(pdf_path, mapping)
+        JOBS[job_id]["message"] = "Extracting answers from PDF"
+        print(f"[{job_id}] Extracting answers from PDF")
+        raw_answers = await extract_answers_async(pdf_path, mapping)
+        JOBS[job_id]["message"] = "Extraction complete"
+        print(f"[{job_id}] Extraction complete")
+
+        # Prepare structured answers including answer, confidence, and source
+        structured_answers = {}
+        for key, val in raw_answers.items():
+            if isinstance(val, dict) and all(k in val for k in ("answer", "confidence", "source")):
+                structured_answers[key] = val
+            else:
+                # Wrap raw value into structured format with defaults
+                structured_answers[key] = {
+                    "answer": val,
+                    "confidence": None,
+                    "source": None,
+                }
+
         JOBS[job_id]["message"] = "Writing JSON results"
+        print(f"[{job_id}] Writing JSON results")
 
         # 3) write raw JSON for debugging/auditing
         json_out = OUTPUTS / f"{pdf_path.stem}__{job_id}.json"
-        json_out.write_text(json.dumps(answers, indent=2))
-        JOBS[job_id]["message"] = "Filling Excel template"
+        json_out.write_text(json.dumps(structured_answers, indent=2))
+        JOBS[job_id]["message"] = "JSON results written"
+        print(f"[{job_id}] JSON results written")
 
         # 4) fill the real Excel template (preserves formatting/formulas)
-        xlsx_out = OUTPUTS / f"{pdf_path.stem}__{job_id}.xlsx"
-        fill_template(mapping, answers, xlsx_out)
+        JOBS[job_id]["message"] = "Filling Excel template"
+        print(f"[{job_id}] Filling Excel template")
+        fill_template(mapping, structured_answers, xlsx_out := OUTPUTS / f"{pdf_path.stem}__{job_id}.xlsx")
+        JOBS[job_id]["message"] = "Excel template filled"
+        print(f"[{job_id}] Excel template filled")
 
         JOBS[job_id]["output_paths"] = {
             "json": f"/download/{json_out.name}",

@@ -1,6 +1,6 @@
 from __future__ import annotations
 import csv, io, re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict
 import chardet  # make sure 'chardet' is in requirements.txt
@@ -17,6 +17,8 @@ class MapRow:
     json_key: str
     answer_type: str
     notes: str
+    confidence: float = 0.0
+    source: str = ""
 
 @dataclass
 class Mapping:
@@ -44,7 +46,15 @@ class Mapping:
         props = {}
         for r in self.question_rows:
             at = (r.answer_type or "text").lower().strip()
-            props[r.json_key] = tmap.get(at, {"type":"string"})
+            base_type = tmap.get(at, {"type":"string"})
+            props[r.json_key] = {
+                "type": "object",
+                "properties": {
+                    "answer": base_type,
+                    "confidence": {"type": "number"},
+                    "source": {"type": "string"},
+                }
+            }
         return {"type":"object","properties":props}
 
     @property
@@ -129,6 +139,9 @@ def load_mapping(path: Path) -> Mapping:
         # ensure required headers exist
         for h in REQUIRED_HEADERS:
             nr.setdefault(h, "")
+        # set defaults for new fields
+        nr.setdefault("confidence", "0.0")
+        nr.setdefault("source", "")
         norm_rows.append(nr)
 
     # Build structured rows and validate keys/types
@@ -188,6 +201,11 @@ def load_mapping(path: Path) -> Mapping:
             elif not cell_re.match((r.get("cell", "") or "").strip()):
                 warnings.append(f"Suspicious cell address '{(r.get('cell','') or '').strip()}' for key '{key}'")
 
+        try:
+            conf_val = float(r.get("confidence", "0.0"))
+        except ValueError:
+            conf_val = 0.0
+
         out.append(MapRow(
             sheet=(r.get("sheet","") or "Bid Information").strip(),
             cell=(r.get("cell","") or "").strip(),
@@ -196,6 +214,8 @@ def load_mapping(path: Path) -> Mapping:
             json_key=key,
             answer_type=at,
             notes=(r.get("notes","") or "").strip(),
+            confidence=conf_val,
+            source=(r.get("source","") or "").strip(),
         ))
         if isq and key:
             seen_keys.append(key)
