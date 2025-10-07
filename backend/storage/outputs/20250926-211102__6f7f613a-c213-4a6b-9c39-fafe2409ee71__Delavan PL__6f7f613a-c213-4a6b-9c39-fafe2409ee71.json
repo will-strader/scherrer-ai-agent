@@ -1,0 +1,212 @@
+{
+  "project_name": {
+    "answer": "Delavan Public Library Addition and Renovation",
+    "confidence": 10,
+    "source": "Page 1; Page 5; Advertisement for Bids; Page 3; Page 2; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 13; Page 4; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 16; Page 19; Page 15"
+  },
+  "owner_name": {
+    "answer": "City of Delavan / Delavan Public Library",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 5; Page 9; Page 12; General context; Page 18; Page 20; Page 23; Page 27; Page 32; Page 6; Page 10; Page 14; Various sections; Section 011000; Page 8; Page 4; Page 7; Page 11; Page 13; Page 22; Page 30; General reference; Page 19; Section 1.10; Section 3.06; Page 16; Section 1.06; General Conditions; various sections; Project details; General references; inferred; Page 15; Page 17"
+  },
+  "bid_date_time": {
+    "answer": "2025-05-07",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 12; Page 7; Page 10; Page 4; Page 8; Page 22; Page 30; inferred; Page 16; Header; Page 9; FEH DESIGN 07 April 2025; Document date; Page 15; document header"
+  },
+  "location_address": {
+    "answer": "404 E Walworth Ave, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 3; Page 5; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 4; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 13; Page 16; Page 19; Page 15"
+  },
+  "bid_turn_in": {
+    "answer": "Delavan City Hall / City Clerk, 123 South Second Street, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 5; bid form; General context; Page 18; Page 20; Page 23; Page 26; Page 3; Page 4; Page 6; inferred; Page 7; Page 10; Page 11; Page 8; Page 12; Page 22; Page 30; inferred from bid date; General reference; Header; Page 9; FEH DESIGN 07 April 2025; Quality Assurance; inference; Page 14; Project details; document header; Page 17"
+  },
+  "public_opening": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 5; Page 9; bid form; General context; Page 18; Page 20; Page 23; Page 27; Page 3; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 12; Page 22; Page 30; inferred from bid process; General reference; FEH DESIGN 07 April 2025; Page 16; inference; Page 14; inferred from bid date; Project details; document header; Page 17"
+  },
+  "bid_bond_required": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 3; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 4; Page 7; Page 11; Page 22; Page 30; inferred from standard practice; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practices; Standard practice; General references"
+  },
+  "bid_bond_pct": {
+    "answer": "5%",
+    "confidence": 10,
+    "source": "Page 2; Page 3; Page 1; Page 5; Page 9; Page 12; General context; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 4; Page 7; Page 11; Page 22; Page 30; inferred from common bond practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references; Page 17"
+  },
+  "pre_bid_conference": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 20; Page 23; Page 27; bid form; Page 3; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; General reference; Section 1.04; Page 16; inference; Page 14; General Conditions; inferred from standard practices; Project details; General references"
+  },
+  "pre_bid_date_time": {
+    "answer": "2025-04-14 15:00",
+    "confidence": 10,
+    "source": "Page 2; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 20; Page 23; Page 27; bid form; Page 3; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from pre-installation meeting; General reference; Section 1.04; inferred from bid date; Page 16; inference; Page 14; General Conditions; inferred from typical scheduling; inferred from standard practices; Project details; General references"
+  },
+  "pre_bid_mandatory": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 1; Page 10; Page 6; Page 8; Page 11; Page 7; bid form; Section 1.04; Page 5; General context; Page 16; Page 20; inference; Page 14; Page 12; General Conditions; inferred from typical practices; General reference; Page 4; inferred from standard practices; Page 9; Project details; General references; Page 17"
+  },
+  "pre_qualification": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Contractor Qualifications; Page 6; Page 8; Page 1; General context; Page 16; Page 20; bid form; inference; Page 10; Page 14; Page 12; General Conditions; Page 7; Page 11; inferred from standard practice; General reference; Page 4; inferred from standard practices; Page 9; Page 5; Project details; General references; Page 17"
+  },
+  "bid_form_copies": {
+    "answer": "One digital copy",
+    "confidence": 6,
+    "source": "Page 3; Page 1; Page 6; Page 11; bid form; inferred; Page 8; Page 10; Page 2; Page 4; Page 7; Page 12; Page 22; Page 30; Page 5; General context; inferred from common practices; General reference; Page 9; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references; Page 17"
+  },
+  "sub_listing_required": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 15; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 4; Page 7; Page 11; Page 12; Page 22; Page 30; Page 5; General context; inferred from bid practices; General reference; Page 9; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "unit_prices": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 2; Page 3; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "price_quantity": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "alternates": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Quality Assurance; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "alternate_quantity": {
+    "answer": "2",
+    "confidence": 6,
+    "source": "Page 1; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 2; Page 7; Page 11; Page 12; Page 22; Page 30; Page 5; General context; inferred from common practices; General reference; Page 9; Section 1.04; Quality Assurance; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references; Page 17"
+  },
+  "no_change": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "no_bid": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "president_signature": {
+    "answer": "Yes",
+    "confidence": 9,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; bid form; Page 3; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "secretary_signature": {
+    "answer": "Yes",
+    "confidence": 9,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; bid form; Page 3; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "other_signature": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; bid form; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "other_name": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; bid form; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 13; Page 22; Page 30; inferred from common practices; General reference; Section 1.07; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "seal_bid_form": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; bid form; Page 3; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; inferred from standard practice; inferred from standard practices; Standard practice; General references"
+  },
+  "seal_bond": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 24; Page 27; bid form; Page 3; Page 4; Page 6; Page 10; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; inferred from standard practice; inferred from standard practices; Standard practice; General references"
+  },
+  "addendum_bid_form": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "clarifications": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "help_required": {
+    "answer": "No",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "wage_scale": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "sbe_dbe_tbe": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "liquated_damages": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "damages_price": {
+    "answer": "Yes",
+    "confidence": 5,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from common practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references; Page 17"
+  },
+  "insurance_req": {
+    "answer": "Yes",
+    "confidence": 9,
+    "source": "Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Standard practice; General references"
+  },
+  "risk_insurance": {
+    "answer": "Yes",
+    "confidence": 9,
+    "source": "Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  },
+  "tax_exempt": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from common practices; General reference; Section 1.04; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Standard practice; General references"
+  },
+  "scope_iems": {
+    "answer": "Cold-formed metal framing",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 5; inferred; Page 6; Page 4; Page 12; Page 22; Page 30; General context; Page 8; inferred from bid requirements; Page 10; General reference; Page 9; Page 7; Page 11; bid form; Section 1.01; Page 16; Page 18; inference; Page 14; Page 20; inferred from standard practice; Project details; Page 17; Page 23"
+  },
+  "testing_gc": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid requirements; General reference; Section 1.04; Quality Assurance; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; General references; Page 15"
+  },
+  "trades": {
+    "answer": "General, Architectural, Structural, Mechanical, Electrical, Technology, Civil, Landscaping, Fire Protection, Plumbing",
+    "confidence": 10,
+    "source": "Page 2; Page 3; Page 4; Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from bid practices; General reference; Section 1.01; Page 16; Page 18; inference; Page 14; Page 20; General Conditions; inferred from project type; inferred from standard practices; Project details; General references"
+  },
+  "start_date": {
+    "answer": "2025-04-07",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 4; Page 5; Page 9; Page 12; Page 14; Page 17; Page 20; Page 23; Page 27; Page 32; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; General context; inferred from project timeline; General reference; Section 1.04; inferred from bid date; Page 16; inference; General Conditions; inferred from typical scheduling; inferred from standard practices; Project details; General references"
+  },
+  "completion_date": {
+    "answer": "2026-08-28",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; Page 9; Page 12; Page 16; Page 17; Page 20; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; General context; inferred from project timeline; General reference; Section 1.04; inferred from bid date; inference; Page 14; General Conditions; inferred from typical scheduling; inferred from standard practices; Project details; General references"
+  },
+  "permit_cost": {
+    "answer": "No cost to Owner",
+    "confidence": 9,
+    "source": "Page 1; Page 5; Page 9; Page 12; General context; Page 17; Page 21; Page 23; Page 27; Page 32; Page 4; Page 6; Page 10; bid form; inferred; Page 8; Page 7; Page 11; Page 22; Page 30; inferred from common practices; General reference; Section 1.04; inferred from project costs; Page 16; Page 20; inference; Page 14; General Conditions; inferred from standard practice; inferred from standard practices; Project details; General references"
+  }
+}

@@ -1,0 +1,37 @@
+sheet,cell,text,is_question,json_key,answer_type,notes
+Bid Information,A1,Bid Submittal Information Checklist,No,,,
+Bid Information,A2,Project Name,yes,project_name,text,N/A if not found for any text answer type
+Bid Information,A3,Owner Name,Yes,owner_name,text,
+Bid Information,A4,Bid Date & Time:,yes,bid_date_time,date,"must be after pre_bid_date_time, format all date like MM/DD/YYY"
+Bid Information,A5,Location/Address to turn in bid:,yes,location_address,location,"Format all locations like 1234 Main Street, City, State"
+Bid Information,B6,Answer,No,,,
+Bid Information,A7,Bid turn in in person or online,yes,bid_turn_in,text,either in person or online 
+Bid Information,A8,Public Opening?,yes,public_opening,yes/no,Format all yes/no by either typing yes or no 
+Bid Information,A9,Bid Bond Required?,Yes,bid_bond_required,number,"If not required, write 0. Usually will be 5 or 10%"
+Bid Information,A10,Performance Bond Required?,Yes,perf_bond,yes/no,
+Bid Information,A11,"Pre-Bid Conference
+/ Walk-Thru",yes,pre_bid_conference,date/time/location,"If no pre-bid conference/walk-thru listed, write “None”"
+Bid Information,A12,Pre-Bid Mandatory?,yes,pre_bid_mandatory,yes/no,
+Bid Information,A13,Pre-Qualification?,yes,pre_qualification,yes/no,
+Bid Information,A14,# of copies of the bid form required?,yes,bid_form_copies,number,
+Bid Information,A15,Subcontractor Listing Required?,yes,sub_listing_required,yes/no,
+Bid Information,A16,Unit Prices?,Yes,unit_prices,number,"If no unit prices listed, write 0"
+Bid Information,A17,Alternates?,yes,alternates,number,"If no alternates listed, write 0"
+Bid Information,A18,Signature by who?,yes,signature,text,"List of each person who needs to sign i.e. president, secretary, person3, …"
+Bid Information,A19,Corporate Seal on bid form?,yes,seal_bid_form,yes/no,
+Bid Information,A20,Corporate Seal on Bond?,yes,seal_bond,yes/no,
+Bid Information,A21,Acknowledge Addendum on Bid form?,yes,addendum_bid_form,yes/no,
+Bid Information,A22,Are we allowed to include clarifications,yes,clarifications,yes/no,
+Bid Information,A23,Wage Scale required?,yes,wage_scale,yes/no,"Davis Bacon Scale, Housing & Urban Development (HUD), Living Wage are most common wage scales to appear"
+Bid Information,A24,SBE/DBE/TBE required?,yes,sbe_dbe_tbe,yes/no,
+Bid Information,A25,Liquidated Damages?,yes,liquidated_damages,number,USD currency per day
+Bid Information,A26,Insurance requirements beyond company standard?,yes,insurance_req,yes/no,
+Bid Information,A27,Builder's Risk Insurance?,yes,risk_insurance,text,"Answer should be “by owner” unless it does not specifically say “owner”, in which case the answer is “by contractor”"
+Bid Information,A28,Project Tax Exempt?,yes,tax_exempt,yes/no,
+Bid Information,A29,"Owner Furnished
+scope items?",yes,scope_items,yes/no,
+Bid Information,A30,Testing by who?,yes,testing,text,"need to list each type of testing in the questions:
+concrete, masonry, steel, glass, envelope, soils. List formatted like: item1 by owner, item2 by contractor, item3 by owner. (If it does not say testing by owner, assume testing by contractor)"
+Bid Information,A31,Start date,yes,start_date,date,
+Bid Information,A32,Completion date,yes,completion_date,date,
+Bid Information,A33,Permit cost?,yes,permit_cost,yes/no,

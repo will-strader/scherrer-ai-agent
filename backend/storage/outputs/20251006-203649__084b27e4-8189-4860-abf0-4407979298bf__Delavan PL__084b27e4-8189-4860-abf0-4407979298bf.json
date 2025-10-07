@@ -1,0 +1,157 @@
+{
+  "project_name": {
+    "answer": "Delavan Public Library Addition and Renovation",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 4; Page 2; Page 5; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 13; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 16; Page 19; Page 15"
+  },
+  "owner_name": {
+    "answer": "City of Delavan",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 23; Page 27; Page 31; Page 6; Page 10; Page 13; Page 8; Page 4; Page 7; Page 11; Warranty section; Page 22; Page 30; Page 16; Page 19; Page 12; Section 1.01; Page 14; Page 17; General Conditions; Page 15; inferred"
+  },
+  "bid_date_time": {
+    "answer": "2025-05-07",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 5; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 13; Page 10; Page 7; Page 4; Page 8; Page 12; Page 18; Page 22; Page 30; inferred; Page 16; Page 15; Header; FEH DESIGN 07 April 2025; Page 9"
+  },
+  "location_address": {
+    "answer": "404 E Walworth Ave, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 2; Page 5; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 13; Page 4; Page 7; Page 10; Page 12; Page 18; Page 22; Page 30; Page 16; Page 19; Page 15"
+  },
+  "bid_turn_in": {
+    "answer": "Delavan City Hall / City Clerk",
+    "confidence": 10,
+    "source": "Page 1; Page 2; bid form; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 29; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; Page 4; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "public_opening": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 5; Page 9; General context; bid details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "bid_bond_required": {
+    "answer": "5",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 5; Page 9; General context; bid details; Page 18; Page 20; Page 24; Page 27; Page 32; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "perf_bond": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "pre_bid_conference": {
+    "answer": "04-14-2025 at 3:00 PM",
+    "confidence": 10,
+    "source": "Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 23; Page 27; Page 29; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; bid form; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15"
+  },
+  "pre_bid_mandatory": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 23; Page 27; Page 29; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; bid form; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15"
+  },
+  "pre_qualification": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 1; Page 6; Page 9; Page 11; Page 12; Page 16; Page 19; Section 1.04; Page 5; Page 10; Page 2; Page 14; Page 17; Page 20; General Conditions; bid form; Page 7; Page 15; General context; Page 4; Page 8; Page 3; inferred; Page 23"
+  },
+  "bid_form_copies": {
+    "answer": "6.0",
+    "confidence": 10,
+    "source": "Page 2; Page 4; Page 6; Page 1; Page 9; Page 5; Page 12; Page 3; Page 8; Page 11; inferred; Page 10; Page 20; Page 23"
+  },
+  "sub_listing_required": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 4; Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; bid form; Bid form; Page 12; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "unit_prices": {
+    "answer": "2",
+    "confidence": 7,
+    "source": "Page 1; Page 3; Page 6; Page 10; Page 14; Page 2; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 9; Page 12; Page 18; Page 22; Page 30; inferred; Page 5; General context; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "alternates": {
+    "answer": "2",
+    "confidence": 7,
+    "source": "Page 1; Page 3; Page 6; Page 10; Page 14; Page 2; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 9; Page 12; Page 18; Page 22; Page 30; inferred; Page 5; General context; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "signature": {
+    "answer": "Bidder's Full Name",
+    "confidence": 8,
+    "source": "Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "seal_bid_form": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 2; Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "seal_bond": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 3; Page 2; Page 1; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "addendum_bid_form": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 2; Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "clarifications": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 4; Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "wage_scale": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "sbe_dbe_tbe": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "liquidated_damages": {
+    "answer": "5",
+    "confidence": 5,
+    "source": "Page 18; Page 20; Page 24; Page 27; Page 32; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 9; Page 12; Page 22; Page 30; inferred; Page 5; General context; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "insurance_req": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "risk_insurance": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 21; Page 24; Page 27; Page 32; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; Page 20; General Conditions; Page 15; Page 23"
+  },
+  "tax_exempt": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "scope_items": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 4; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; bid form; Scope section; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.01; Page 17; General Conditions; Page 15; Page 23"
+  },
+  "testing": {
+    "answer": "Piping System Leak Tests",
+    "confidence": 10,
+    "source": "Page 1; Page 4; Page 3; Page 8; Page 12; Page 6; Page 10; Page 11; Page 7; Page 5; Page 2; Page 9; Page 16; Page 19; Section 1.01; Page 14; Page 17; Page 20; General Conditions; Page 15; General context; inferred; Page 23"
+  },
+  "start_date": {
+    "answer": "2025-04-07",
+    "confidence": 10,
+    "source": "Page 29; Page 1; Page 6; Page 13; Page 10; Page 7; Page 11; Page 4; Page 8; Bid form; Page 12; Page 18; Page 22; Page 30; inferred; Page 9; Page 5; Page 16; Page 19; Page 15; Header; Page 14; Page 17; Page 20; FEH DESIGN 07 April 2025; Page 23"
+  },
+  "completion_date": {
+    "answer": "2026-08-28",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 3; Page 5; General context; Page 16; Page 18; Page 20; Page 23; Page 27; Page 29; Page 6; Page 10; Page 14; Page 8; Page 7; Page 11; Page 4; bid form; Bid form; Page 9; Page 12; Page 22; Page 30; inferred; Page 19; Section 1.04; Page 17; General Conditions; Page 15"
+  },
+  "permit_cost": {
+    "answer": "No",
+    "confidence": 8,
+    "source": "Page 1; Page 3; Page 5; Page 9; General context; contract details; Page 18; Page 20; Page 24; Page 27; Page 29; Page 6; Page 12; Page 14; Page 8; Page 10; Page 7; Page 11; Page 4; bid form; Bid form; Page 22; Page 30; inferred; Page 16; Page 19; Section 1.04; Page 17; General Conditions; Page 15; Page 23"
+  }
+}

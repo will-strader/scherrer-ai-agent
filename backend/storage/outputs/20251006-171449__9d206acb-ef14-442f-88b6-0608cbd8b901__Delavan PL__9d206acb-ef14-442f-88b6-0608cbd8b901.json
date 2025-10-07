@@ -1,0 +1,157 @@
+{
+  "project_name": {
+    "answer": "Delavan Public Library Addition and Renovation",
+    "confidence": 10,
+    "source": "Page 1; Page 5; Page 3; Page 2; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 13; Page 4; Page 7; Page 10; Page 12; Page 22; Page 30; Page 16; Page 19; Page 15; Page 18"
+  },
+  "owner_name": {
+    "answer": "City of Delavan or Delavan Public Library",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 5; Page 9; General reference; contract terms; Page 18; Page 20; Page 23; Page 26; Page 32; Page 6; Page 10; Page 13; Page 8; Page 4; Page 7; Warranty Documentation; Page 22; Page 30; general reference; Page 16; Page 19; Page 12; Page 11; Section 1.01; Page 14; Page 17; General Conditions; General context; Page 15; inferred; General references"
+  },
+  "bid_date_time": {
+    "answer": "2025-05-07",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 12; Page 7; Page 4; Page 8; Page 3; Page 30; bid form; Page 5; Page 10; Page 16; Page 15; Page 18; FEH DESIGN; Page 9; inferred; Document date"
+  },
+  "location_address": {
+    "answer": "404 E Walworth Ave, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 2; Page 5; Page 8; Page 11; Page 14; Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 9; Page 13; Page 4; Page 7; Page 10; Page 12; Page 22; Page 30; Page 16; Page 19; Page 15; Page 18"
+  },
+  "bid_turn_in": {
+    "answer": "Delavan City Hall / City Clerk, 123 South Second Street, Delavan, WI 53115",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 9; General reference; contract terms; Page 18; Page 21; Page 24; Page 26; Page 29; Page 6; Page 10; Page 12; Page 7; Page 4; Page 8; Bid form; Page 30; bid form; Page 5; Page 11; general reference; Page 16; inferred; Page 15; inferred from bid date; General context; Page 14; Page 17; Page 20; Document date"
+  },
+  "public_opening": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 29; Page 6; Page 10; Page 12; Page 8; Page 4; Bid form; Page 30; bid form; Page 5; Page 11; general reference; Page 16; inferred; Page 15; inferred from bid date; General context; Page 7; Page 14; Page 17; Page 20; Document date"
+  },
+  "bid_bond_required": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 24; Page 26; Page 32; Page 6; Page 10; bid form; Page 8; Page 4; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "perf_bond": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 24; Page 26; Page 32; Page 6; Page 10; bid form; Page 8; Page 4; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "pre_bid_conference": {
+    "answer": "2025-04-14T15:00:00",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 29; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; general reference; Page 16; inferred; Page 12; Page 11; Page 15; not mentioned; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General references"
+  },
+  "pre_bid_mandatory": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 29; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; general reference; Page 16; inferred; Page 12; Page 11; Page 15; not mentioned; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General references"
+  },
+  "pre_qualification": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "bid_form_copies": {
+    "answer": "Two copies",
+    "confidence": 8,
+    "source": "Page 11; bid form; Page 8; Page 2; Page 4; Bid form; Page 30; Page 5; general reference; Page 16; inferred; Page 6; Page 12; Page 10; Page 9; Page 15; Page 18; inferred from standard practices; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "sub_listing_required": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 1; Page 2; Page 3; Page 6; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "unit_prices": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "alternates": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "signature": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; bid form; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; Page 8; Page 4; Bid form; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; General context; Page 7; Page 15; Page 14; Page 17; Page 20"
+  },
+  "seal_bid_form": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; bid form; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; Page 8; Page 4; Bid form; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; common practice; General context; Page 7; Page 15; Page 14; Page 17; Page 20"
+  },
+  "seal_bond": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; bid form; Page 18; Page 21; Page 24; Page 26; Page 32; Page 6; Page 10; Page 8; Page 4; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General context; Page 7; Page 14; Page 17; Page 20; Bid form"
+  },
+  "addendum_bid_form": {
+    "answer": "Yes",
+    "confidence": 8,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; Bid form"
+  },
+  "clarifications": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 5; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "wage_scale": {
+    "answer": "Yes",
+    "confidence": 7,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "sbe_dbe_tbe": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "liquidated_damages": {
+    "answer": "Yes",
+    "confidence": 6,
+    "source": "Page 1; Page 2; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "insurance_req": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 24; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "risk_insurance": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 9; General reference; contract terms; Page 18; Page 21; Page 24; Page 26; Page 32; Page 6; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; common practice; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "tax_exempt": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; Page 3; Page 6; Page 9; General reference; contract terms; Page 18; Page 21; Page 23; Page 26; Page 29; Page 10; bid form; Page 4; Page 8; Bid requirements; Page 30; Page 5; Page 11; general reference; Page 16; inferred; Page 12; Page 15; not mentioned; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  },
+  "scope_items": {
+    "answer": "Expansion and renovation of library",
+    "confidence": 10,
+    "source": "Page 1; Page 6; Page 10; bid form; Page 8; Page 2; Page 4; Page 7; Page 11; Page 3; Page 5; Page 9; Page 12; Page 18; Page 22; Page 30; Page 14; Page 16; Page 19; Page 15; Section 1.01; Page 17; Page 20; General context; Page 13"
+  },
+  "testing": {
+    "answer": "Yes",
+    "confidence": 10,
+    "source": "Page 2; Page 1; bid form; Page 4; Page 8; Page 12; Page 3; Testing requirements; Page 5; Page 6; Page 21; Page 22; Page 30; Page 11; general reference; Page 16; Page 19; inferred; Page 9; Page 7; Page 10; Section 1.01; Page 18; Page 20; General Conditions; Page 15; Page 13; Page 14; Page 17; General requirements"
+  },
+  "start_date": {
+    "answer": "2025-04-07",
+    "confidence": 10,
+    "source": "Page 17; Page 20; Page 23; Page 26; Page 29; Page 6; Page 12; Page 7; Page 4; Page 8; Bid form; Page 30; bid form; Page 5; Page 10; general reference; Page 16; inferred; Page 11; Page 15; Page 18; inferred from bid date; General context; Page 14; Page 9; Estimated start"
+  },
+  "completion_date": {
+    "answer": "2026-08-28",
+    "confidence": 10,
+    "source": "Page 1; Page 2; Page 3; General reference; Page 16; Page 19; Page 21; Page 23; Page 26; Page 29; Page 6; Page 12; Page 4; Page 7; Page 8; Estimated completion; Page 30; bid form; Page 5; Page 10; general reference; inferred; estimate; Page 11; inference; Page 9; Page 15; Page 18; inferred from typical project duration; Page 20; General context; Page 14; best guess; Page 17"
+  },
+  "permit_cost": {
+    "answer": "0",
+    "confidence": 10,
+    "source": "Page 1; Page 3; Page 9; General reference; contract terms; Page 19; Page 21; Page 24; Page 26; Page 29; Page 6; Page 10; Page 12; bid form; Page 4; Page 8; Estimated costs; Page 30; Page 5; Page 11; general reference; Page 16; inferred; estimate; inference; Page 15; Page 18; inferred from typical costs; General Conditions; General context; Page 7; Page 14; Page 17; Page 20; General requirements"
+  }
+}

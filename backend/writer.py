@@ -68,7 +68,7 @@ def _extract_structured(answer_value: Any) -> tuple[Any, int, str]:
   return val, conf, source
 
 def _write_conf_source(ws, row_idx: int, conf: int, source: str):
-  """Write Confidence (col E) and Source (col F)."""
+  """Write Confidence (col C) and Source (col D)."""
   # Ensure confidence between 1 and 10, default 3
   if not isinstance(conf, int):
     conf = 3
@@ -79,8 +79,8 @@ def _write_conf_source(ws, row_idx: int, conf: int, source: str):
   # Ensure source is a non-empty string
   if source is None or str(source).strip() == "":
     source = "Unknown"
-  ws.cell(row=row_idx, column=5, value=conf)
-  ws.cell(row=row_idx, column=6, value=source)
+  ws.cell(row=row_idx, column=3, value=conf)
+  ws.cell(row=row_idx, column=4, value=source)
 
 from .mapping import Mapping
 
@@ -152,7 +152,7 @@ def _coerce_for_cell(answer_value: Any, answer_type: str):
 def _targets(row):
   """
   Given a mapping row, determine the worksheet, row index, and target columns for question and answer.
-  Returns (ws, row_idx, col_q, col_a, col_yes, col_no, col_conf, col_src)
+  Returns (ws, row_idx, col_q, col_a, col_conf, col_src)
   """
   # Pick sheet (fallback to first sheet if mapping name not found)
   wb = row._workbook  # must be set by fill_template
@@ -162,27 +162,11 @@ def _targets(row):
   from openpyxl.utils.cell import coordinate_from_string
   cell = row.cell
   if not cell:
-    return ws, None, None, None, None, None, None, None
+    return ws, None, None, None, None, None
   col, idx = coordinate_from_string(cell)
   row_idx = idx
-  # Column A: question, B: answer, C: Yes, D: No, E: Confidence, F: Source
-  return ws, row_idx, 1, 2, 3, 4, 5, 6
-
-def _write_yes_no(ws, row_idx, answer):
-  yes_val = None
-  no_val = None
-  norm = _normalize_yesno(answer)
-  if norm == "Yes":
-    yes_val = "Yes"
-    no_val = ""
-  elif norm == "No":
-    yes_val = ""
-    no_val = "No"
-  else:
-    yes_val = norm or ""
-    no_val = ""
-  ws.cell(row=row_idx, column=3, value=yes_val)
-  ws.cell(row=row_idx, column=4, value=no_val)
+  # Column A: question, B: answer, C: Confidence, D: Source
+  return ws, row_idx, 1, 2, 3, 4
 
 def _write_text(ws, row_idx, value, answer_type):
   cell = ws.cell(row=row_idx, column=2)
@@ -211,7 +195,7 @@ def fill_template(mapping: Mapping, answers: Dict[str, Any], out_path: Path, exc
     if not key:
       logging.warning(f"Skipping row with no json_key at {row.cell}")
       continue
-    ws, row_idx, col_q, col_a, col_yes, col_no, col_conf, col_src = _targets(row)
+    ws, row_idx, col_q, col_a, col_conf, col_src = _targets(row)
     if ws is None or row_idx is None:
       continue
     # Preserve original question text in column A
@@ -225,14 +209,14 @@ def fill_template(mapping: Mapping, answers: Dict[str, Any], out_path: Path, exc
     answer_type = (row.answer_type or "text").lower().strip()
 
     try:
-      if answer_type == "yesno":
-        _write_yes_no(ws, row_idx, value)
-      else:
-        _write_text(ws, row_idx, value, answer_type)
+      _write_text(ws, row_idx, value, answer_type)
       # Confidence & Source for every row, always write even if empty
       _write_conf_source(ws, row_idx, conf, src)
     except Exception as e:
       logging.warning(f"Failed to write answer for key {key} at {row.cell}: {e}")
+      ws.cell(row=row_idx, column=col_a, value=f"Error: {e}")
+      ws.cell(row=row_idx, column=col_conf, value="Error")
+      ws.cell(row=row_idx, column=col_src, value="Error")
       continue
 
   # Ensure parent directory exists and save

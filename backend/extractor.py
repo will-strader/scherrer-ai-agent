@@ -81,13 +81,32 @@ async def extract_answers_async(pdf_path: Path, mapping: Mapping, job_status: di
     semaphore = asyncio.Semaphore(3)
 
     async def _process_chunk(idx: int, chunk: str) -> Dict[str, object]:
+        # Build type guidance string from mapping.question_rows answer_types with explicit examples
+        type_guidance = "Answer each question using the correct type:\n"
+        for row in mapping.question_rows:
+            atype = getattr(row, "answer_type", "").lower().strip()
+            key = getattr(row, "json_key", "").strip()
+            if not key:
+                continue
+            if atype == "number":
+                type_guidance += f"- {key}: numeric value only (e.g., 5 or 10.0).\n"
+            elif atype == "currency":
+                type_guidance += f"- {key}: numeric currency (e.g., 5000 or 120000).\n"
+            elif atype in ("yes/no", "yesno"):
+                type_guidance += f"- {key}: strictly 'Yes' or 'No'.\n"
+            elif atype == "text":
+                type_guidance += f"- {key}: short text or name only.\n"
+            elif atype == "date":
+                type_guidance += f"- {key}: use YYYY-MM-DD format.\n"
+
         messages = [{"role": "system", "content": system_msg}]
         messages.append({
             "role": "user",
             "content": (
                 "Answer ONLY these keys: " + ", ".join(keys) +
                 ". Each key must map to {\"answer\": ..., \"confidence\": ..., \"source\": ...}. Confidence must be 1-10, source should be page numbers or context reference.\n" +
-                "Use ONLY the document text below.\n\n" +
+                type_guidance +
+                "\nUse ONLY the document text below.\n\n" +
                 chunk
             )
         })

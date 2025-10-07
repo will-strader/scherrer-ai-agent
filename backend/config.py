@@ -34,7 +34,7 @@ def _resolve_repo_path(val: str, default_name: str) -> Path:
             p = (REPO_ROOT / p).resolve()
     return p.resolve()
 
-MAPPING_CSV    = _resolve_repo_path(os.getenv("MAPPING_CSV") or "", "question_mapping_template.csv")
+MAPPING_CSV    = _resolve_repo_path(os.getenv("MAPPING_CSV") or "", "question_mapping_template_new.csv")
 EXCEL_TEMPLATE = _resolve_repo_path(os.getenv("EXCEL_TEMPLATE") or "", "bid checklist.xlsx")
 
 print(f"[config] Using model: {MODEL_NAME} (temperature={MODEL_TEMPERATURE:.2f})")
