@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from backend.models import ProcessResponse, JobStatus
 from backend.extractor import extract_answers, extract_answers_async
 from backend.writer import fill_template
-from backend.mapping import Mapping
+from backend.mapping import Mapping, load_mapping
 from backend.config import MAPPING_CSV, EXCEL_TEMPLATE
 
 load_dotenv()
