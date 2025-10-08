@@ -14,7 +14,7 @@ from backend.models import ProcessResponse, JobStatus
 from backend.extractor import extract_answers, extract_answers_async
 from backend.writer import fill_template
 from backend.mapping import Mapping
-from backend.config import MAPPING_CSV, EXCEL_TEMPLATE_PATH
+from backend.config import MAPPING_CSV, EXCEL_TEMPLATE
 
 load_dotenv()
 
