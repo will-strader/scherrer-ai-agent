@@ -27,7 +27,7 @@ else:
 
 # TEMPORARY: disable frontend token authentication
 # TODO: re-enable when production-ready
-def verify_frontend_token(request: Request):
+def verify_frontend_token(request):
     return True
 
 BASE = Path(__file__).resolve().parent
