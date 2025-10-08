@@ -10,11 +10,11 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from .models import ProcessResponse, JobStatus
-from .extractor import extract_answers, extract_answers_async
-from .writer import fill_template
-from .mapping import load_mapping
-from .config import MAPPING_CSV
+from backend.models import ProcessResponse, JobStatus
+from backend.extractor import extract_answers, extract_answers_async
+from backend.writer import fill_template
+from backend.mapping import Mapping
+from backend.config import MAPPING_CSV_PATH, EXCEL_TEMPLATE_PATH 
 
 load_dotenv()
 
