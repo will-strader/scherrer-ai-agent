@@ -118,7 +118,8 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
     }
     save_job_state(job_id)
 
-    background_tasks.add_task(_process_job, job_id, pdf_path)
+    import threading
+    threading.Thread(target=lambda: asyncio.run(_process_job(job_id, pdf_path)), daemon=True).start()
     return ProcessResponse(job_id=job_id, status="queued")
 
 async def _process_job(job_id: str, pdf_path: Path):
@@ -183,7 +184,10 @@ async def _process_job(job_id: str, pdf_path: Path):
         JOBS[job_id]["message"] = "Completed"
         JOBS[job_id]["status"] = "done"
         save_job_state(job_id)
+        print(f"[{job_id}] Background job started successfully on thread")
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         JOBS[job_id]["status"] = "error"
         JOBS[job_id]["message"] = str(e)
         save_job_state(job_id)
