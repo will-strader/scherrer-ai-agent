@@ -1,3 +1,5 @@
+VERSION = "v1.0.0"
+
 import os
 import uuid
 import json
@@ -17,6 +19,8 @@ from backend.mapping import Mapping, load_mapping
 from backend.config import MAPPING_CSV, EXCEL_TEMPLATE
 
 load_dotenv()
+
+print(f"[config] AI Bid Assistant backend version {VERSION} initialized")
 
 # --- API Key check system ---
 API_KEY = os.getenv("API_KEY")
@@ -89,6 +93,10 @@ def load_job_state(job_id: str):
 @app.get("/", response_class=HTMLResponse)
 def home():
     return "<h3>AI Bid Assistant Backend</h3><p>POST /process with a PDF to get started.</p>"
+
+@app.get("/version")
+def version():
+    return {"version": VERSION, "backend": True}
 
 @app.get("/ping")
 def ping():
