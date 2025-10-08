@@ -20,8 +20,16 @@ load_dotenv()
 
 # --- API Key check system ---
 API_KEY = os.getenv("API_KEY")
+if API_KEY is None:
+    print("[config] WARNING: No API_KEY set — authentication disabled")
+else:
+    print("[config] API authentication enabled")
+
 def verify_key(x_api_key: str = Header(None)):
-    if API_KEY is None or x_api_key != API_KEY:
+    if API_KEY is None:
+        # Authentication disabled
+        return
+    if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 BASE = Path(__file__).resolve().parent
