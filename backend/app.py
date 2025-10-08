@@ -25,12 +25,10 @@ if API_KEY is None:
 else:
     print("[config] API authentication enabled")
 
-def verify_key(x_api_key: str = Header(None)):
-    if API_KEY is None:
-        # Authentication disabled
-        return
-    if x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Unauthorized")
+# TEMPORARY: disable frontend token authentication
+# TODO: re-enable when production-ready
+def verify_frontend_token(request: Request):
+    return True
 
 BASE = Path(__file__).resolve().parent
 UPLOADS = BASE / "storage" / "uploads"
