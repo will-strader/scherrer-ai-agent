@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import asyncio
 
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException, Depends, Header
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -17,6 +17,12 @@ from backend.mapping import Mapping
 from backend.config import MAPPING_CSV, EXCEL_TEMPLATE
 
 load_dotenv()
+
+# --- API Key check system ---
+API_KEY = os.getenv("API_KEY")
+def verify_key(x_api_key: str = Header(None)):
+    if API_KEY is None or x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 BASE = Path(__file__).resolve().parent
 UPLOADS = BASE / "storage" / "uploads"
@@ -44,7 +50,7 @@ def home():
 def ping():
     return {"ok": True}
 
-@app.post("/process", response_model=ProcessResponse)
+@app.post("/process", response_model=ProcessResponse, dependencies=[Depends(verify_key)])
 async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Please upload a .pdf")
@@ -131,7 +137,7 @@ def status(job_id: str):
         raise HTTPException(status_code=404, detail="Unknown job")
     return JobStatus(**job)
 
-@app.get("/download/{filename}")
+@app.get("/download/{filename}", dependencies=[Depends(verify_key)])
 def download(filename: str):
     path = OUTPUTS / filename
     if not path.exists():
@@ -139,7 +145,7 @@ def download(filename: str):
     media = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if filename.endswith(".xlsx") else "application/json"
     return FileResponse(path, media_type=media, filename=filename)
 
-@app.delete("/cleanup")
+@app.delete("/cleanup", dependencies=[Depends(verify_key)])
 def cleanup():
     # basic retention policy
     cutoff = datetime.utcnow() - timedelta(days=RETENTION_DAYS)

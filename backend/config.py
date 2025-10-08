@@ -19,6 +19,7 @@ OPENAI_PROJECT = os.getenv("OPENAI_PROJECT", "").strip()
 MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-4o-mini").strip()
 MODEL_TEMPERATURE = float(os.getenv("MODEL_TEMPERATURE", "0"))
 RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "60"))
+FRONTEND_ACCESS_TOKEN = os.getenv("FRONTEND_ACCESS_TOKEN", "").strip()
 
 # Explicitly anchor repo root to the folder containing backend/
 REPO_ROOT = (Path(__file__).resolve().parent / "..").resolve()
@@ -40,6 +41,10 @@ EXCEL_TEMPLATE = _resolve_repo_path(os.getenv("EXCEL_TEMPLATE") or "", "bid chec
 print(f"[config] Using model: {MODEL_NAME} (temperature={MODEL_TEMPERATURE:.2f})")
 print(f"[config] Mapping CSV: {MAPPING_CSV}")
 print(f"[config] Excel template: {EXCEL_TEMPLATE}")
+if FRONTEND_ACCESS_TOKEN:
+    print(f"[config] Frontend access token loaded ({len(FRONTEND_ACCESS_TOKEN)} chars)")
+else:
+    print("[config] WARNING: FRONTEND_ACCESS_TOKEN not set — frontend authentication disabled")
 
 # Sanity checks
 if not OPENAI_API_KEY:
