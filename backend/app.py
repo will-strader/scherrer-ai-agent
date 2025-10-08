@@ -118,7 +118,7 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
     }
     save_job_state(job_id)
 
-    asyncio.create_task(_process_job(job_id, pdf_path))
+    background_tasks.add_task(_process_job, job_id, pdf_path)
     return ProcessResponse(job_id=job_id, status="queued")
 
 async def _process_job(job_id: str, pdf_path: Path):
