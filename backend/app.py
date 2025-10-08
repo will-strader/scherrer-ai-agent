@@ -64,7 +64,6 @@ def ping():
 @app.post(
     "/process",
     response_model=ProcessResponse,
-    dependencies=[Depends(verify_key)],
 )
 async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
@@ -154,7 +153,6 @@ def status(job_id: str):
 
 @app.get(
     "/download/{filename}",
-    dependencies=[Depends(verify_key)],
 )
 def download(filename: str):
     path = OUTPUTS / filename
@@ -165,7 +163,6 @@ def download(filename: str):
 
 @app.delete(
     "/cleanup",
-    dependencies=[Depends(verify_key)],
 )
 def cleanup():
     # basic retention policy
