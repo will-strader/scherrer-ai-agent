@@ -36,7 +36,12 @@ app = FastAPI(title="AI Bid Assistant (MVP)")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+    allow_origins=[
+        "https://scherrer-ai-agent-frontend.onrender.com",
+        "http://localhost:5173"
+    ],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # In-memory job registry (good enough for local dev)
@@ -50,7 +55,11 @@ def home():
 def ping():
     return {"ok": True}
 
-@app.post("/process", response_model=ProcessResponse, dependencies=[Depends(verify_key)])
+@app.post(
+    "/process",
+    response_model=ProcessResponse,
+    dependencies=[Depends(verify_key)],
+)
 async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Please upload a .pdf")
@@ -137,7 +146,10 @@ def status(job_id: str):
         raise HTTPException(status_code=404, detail="Unknown job")
     return JobStatus(**job)
 
-@app.get("/download/{filename}", dependencies=[Depends(verify_key)])
+@app.get(
+    "/download/{filename}",
+    dependencies=[Depends(verify_key)],
+)
 def download(filename: str):
     path = OUTPUTS / filename
     if not path.exists():
@@ -145,7 +157,10 @@ def download(filename: str):
     media = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if filename.endswith(".xlsx") else "application/json"
     return FileResponse(path, media_type=media, filename=filename)
 
-@app.delete("/cleanup", dependencies=[Depends(verify_key)])
+@app.delete(
+    "/cleanup",
+    dependencies=[Depends(verify_key)],
+)
 def cleanup():
     # basic retention policy
     cutoff = datetime.utcnow() - timedelta(days=RETENTION_DAYS)
