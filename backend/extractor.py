@@ -6,7 +6,6 @@ import pdfplumber
 from typing import List, Dict
 import asyncio
 import random
-import time
 from openai import AsyncOpenAI
 
 from .config import MODEL_NAME, MODEL_TEMPERATURE
@@ -22,42 +21,6 @@ try:
 except Exception:
     _t = 0.3
 MODEL_TEMPERATURE = _t
-
-
-def _read_pdf_text(pdf_path: Path, max_pages: int | None = None) -> List[str]:
-    """Extract text per page using pdfplumber. Returns a list of page texts (one string per page)."""
-    texts: List[str] = []
-    with pdfplumber.open(pdf_path) as pdf:
-        total_pages = len(pdf.pages)
-        limit = min(total_pages, max_pages) if max_pages else total_pages
-        for i in range(limit):
-            try:
-                raw = pdf.pages[i].extract_text() or ""
-            except Exception:
-                raw = ""
-            # normalize whitespace
-            norm = re.sub(r"[ \t]+", " ", raw)
-            texts.append(norm)
-    return texts
-
-
-def _chunk_text(pages: List[str], target_chars: int = 12000) -> List[str]:
-    """
-    Group consecutive pages into chunks of about target_chars characters.
-    This keeps each prompt reasonably sized.
-    """
-    chunks: List[str] = []
-    buf = ""
-    for page_text in pages:
-        if len(buf) + len(page_text) + 1 > target_chars:
-            if buf:
-                chunks.append(buf)
-            buf = page_text
-        else:
-            buf += ("\n" if buf else "") + page_text
-    if buf:
-        chunks.append(buf)
-    return chunks
 
 
 def _build_instructions(mapping: Mapping) -> str:
@@ -161,14 +124,11 @@ def _merge_answer(into_val: dict | None, new_val: dict) -> dict:
 
 async def _process_chunk(
     idx: int,
-    total_chunks: int,
     chunk_text: str,
     keys: List[str],
     mapping: Mapping,
     system_msg: str,
-    semaphore: asyncio.Semaphore,
     job_status: dict | None,
-    max_concurrency: int,
 ) -> Dict[str, object]:
     """
     Run the model on ONE chunk of text.
@@ -205,30 +165,22 @@ async def _process_chunk(
     )
 
     if job_status is not None:
-        job_status["progress"] = (
-            f"Chunk {idx+1}/{total_chunks} queued (parallel={max_concurrency})"
-        )
+        job_status["progress"] = f"Running model on chunk {idx+1}"
 
     # retry loop / rate limit backoff
     attempt = 0
     max_attempts = 5
     while True:
         try:
-            async with semaphore:
-                if job_status is not None:
-                    job_status["progress"] = (
-                        f"Chunk {idx+1}/{total_chunks} running (parallel={max_concurrency})"
-                    )
-
-                resp = await async_client.chat.completions.create(
-                    model=MODEL_NAME,
-                    messages=[
-                        {"role": "system", "content": system_msg},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    temperature=MODEL_TEMPERATURE,
-                    response_format={"type": "json_object"},
-                )
+            resp = await async_client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": system_msg},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=MODEL_TEMPERATURE,
+                response_format={"type": "json_object"},
+            )
             break
         except Exception as e:
             # simple rate limit heuristic
@@ -237,8 +189,7 @@ async def _process_chunk(
                 delay = (2 ** attempt) + random.uniform(0, 1)
                 if job_status is not None:
                     job_status["progress"] = (
-                        f"Rate limit on chunk {idx+1}/{total_chunks}, "
-                        f"retry {attempt+1} in {delay:.2f}s"
+                        f"Rate limit on chunk {idx+1}, retry {attempt+1} in {delay:.2f}s"
                     )
                 await asyncio.sleep(delay)
                 attempt += 1
@@ -262,9 +213,7 @@ async def _process_chunk(
             data = {}
 
     if job_status is not None:
-        job_status["progress"] = (
-            f"Chunk {idx+1}/{total_chunks} processed (parallel={max_concurrency})"
-        )
+        job_status["progress"] = f"Chunk {idx+1} processed"
 
     # normalize each answer in this chunk
     cleaned: Dict[str, object] = {}
@@ -274,85 +223,111 @@ async def _process_chunk(
     return cleaned
 
 
-async def _extract_with_limit(
+def _iter_chunks_from_pdf(pdf_path: Path, target_chars: int = 12000):
+    buf = ""
+    with pdfplumber.open(pdf_path) as pdf:
+        total_pages = len(pdf.pages)
+        for p_idx in range(total_pages):
+            try:
+                raw = pdf.pages[p_idx].extract_text() or ""
+            except Exception:
+                raw = ""
+            norm = re.sub(r"[ \t]+", " ", raw)
+            # if adding this page would push us over target_chars, yield current buf
+            if buf and (len(buf) + len(norm) + 1 > target_chars):
+                yield buf
+                buf = norm
+            else:
+                buf = (buf + "\n" + norm) if buf else norm
+        if buf:
+            yield buf
+
+
+async def _extract_with_concurrency(
     pdf_path: Path,
     mapping: Mapping,
     job_status: dict | None,
     max_concurrency: int,
 ) -> Dict[str, object]:
     """
-    Core extractor for ONE concurrency level.
-    - Read + chunk PDF
-    - Process chunks in batches of size = max_concurrency (so memory doesn't explode)
-    - Merge partial answers into running result dict
-    - Return final merged dict
+    Bounded-concurrency extractor using an async queue and a small worker pool.
+    Memory safety: we never accumulate all chunks in memory; the queue has a tiny
+    bounded size and workers hold at most one chunk each.
     """
-
-    # 1. read + chunk
-    pages = _read_pdf_text(pdf_path)
-    chunks = _chunk_text(pages, target_chars=12000)
-    total_chunks = len(chunks)
-
     keys = mapping.json_keys()
     system_msg = _build_instructions(mapping)
 
-    # this will hold final merged answers
     merged: Dict[str, dict | None] = {k: None for k in keys}
 
-    # step size = max_concurrency
+    # Small queue so we don't buffer the whole PDF.
+    queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue(maxsize=max_concurrency * 2)
+
+    results: Dict[int, Dict[str, object]] = {}
+    exception_holder: list[BaseException] = []
+
+    async def worker(worker_id: int):
+        while True:
+            item = await queue.get()
+            if item is None:
+                queue.task_done()
+                break
+            idx, chunk_text = item
+            try:
+                partial = await _process_chunk(idx, chunk_text, keys, mapping, system_msg, job_status)
+                results[idx] = partial
+            except BaseException as e:  # capture and propagate later
+                exception_holder.append(e)
+            finally:
+                queue.task_done()
+
+    # Start workers
+    workers = [asyncio.create_task(worker(i)) for i in range(max(1, max_concurrency))]
+
+    # Producer: stream chunks and feed queue
     if job_status is not None:
-        job_status["progress"] = (
-            f"Extracting with concurrency={max_concurrency}, total_chunks={total_chunks}"
-        )
+        job_status["progress"] = f"Preparing chunks (concurrency={max_concurrency})"
 
-    semaphore = asyncio.Semaphore(max_concurrency)
+    idx = 0
+    for chunk_text in _iter_chunks_from_pdf(pdf_path):
+        await queue.put((idx, chunk_text))
+        idx += 1
 
-    batch_index = 0
-    for start in range(0, total_chunks, max_concurrency):
-        end = min(start + max_concurrency, total_chunks)
-        current_specs = [(i, chunks[i]) for i in range(start, end)]
+    # Tell workers to stop
+    for _ in workers:
+        await queue.put(None)
 
-        # prepare tasks for this batch
-        tasks = [
-            _process_chunk(
-                idx=i,
-                total_chunks=total_chunks,
-                chunk_text=ch_text,
-                keys=keys,
-                mapping=mapping,
-                system_msg=system_msg,
-                semaphore=semaphore,
-                job_status=job_status,
-                max_concurrency=max_concurrency,
-            )
-            for (i, ch_text) in current_specs
-        ]
+    # Wait for all work to finish
+    await queue.join()
 
-        # run this batch in parallel
-        batch_results: List[Dict[str, object]] = await asyncio.gather(*tasks)
+    # Propagate any exception that occurred inside workers
+    if exception_holder:
+        # Cancel workers before raising
+        for w in workers:
+            w.cancel()
+        raise exception_holder[0]
 
-        # merge this batch into `merged`
-        for chunk_result in batch_results:
-            for k in keys:
-                if k not in chunk_result:
-                    continue
-                merged[k] = _merge_answer(merged[k], chunk_result[k])
+    # Ensure workers are fully done
+    for w in workers:
+        try:
+            await w
+        except asyncio.CancelledError:
+            pass
 
-        batch_index += 1
-        if job_status is not None:
-            job_status["progress"] = (
-                f"Merged batch {batch_index} "
-                f"({end}/{total_chunks} chunks done, parallel={max_concurrency})"
-            )
+    # Merge results in index order so later chunks can override with higher confidence
+    for i in range(idx):
+        partial = results.get(i, {})
+        for k in keys:
+            if k in partial:
+                merged[k] = _merge_answer(merged[k], partial[k])
 
-    # fill any missing keys with fallback object
+    # Fill any missing keys
     for k in keys:
         if merged[k] is None:
             merged[k] = {"answer": "", "confidence": 1, "source": ""}
 
     if job_status is not None:
         job_status["result"] = merged
-        job_status["progress"] = "Extraction complete (merged all batches)"
+        job_status["progress"] = "Extraction complete"
 
     return merged
 
@@ -363,48 +338,25 @@ async def extract_answers_async(
     job_status: dict | None = None,
 ) -> Dict[str, object]:
     """
-    Adaptive wrapper.
-    Try concurrency = 3, then 2, then 1.
-    If an attempt fails (e.g. memory kill), fall back to the next.
+    Async extractor with bounded concurrency and automatic fallback
+    (3 → 2 → 1) if an exception occurs.
     """
-
-    plan = [3, 2, 1]
-    last_err: Exception | None = None
-
-    for level in plan:
+    for conc in (3, 2, 1):
         try:
             if job_status is not None:
-                job_status["progress"] = (
-                    f"Starting extraction with concurrency={level}"
-                )
-            result = await _extract_with_limit(
-                pdf_path=pdf_path,
-                mapping=mapping,
-                job_status=job_status,
-                max_concurrency=level,
-            )
+                job_status["progress"] = f"Starting extraction (concurrency={conc})"
+            return await _extract_with_concurrency(pdf_path, mapping, job_status, conc)
+        except BaseException as e:
             if job_status is not None:
-                job_status["progress"] = (
-                    f"Extraction finished with concurrency={level}"
-                )
-            return result
-        except Exception as e:
-            last_err = e
-            if job_status is not None:
-                job_status["progress"] = (
-                    f"Concurrency {level} failed ({type(e).__name__}). Trying lower."
-                )
-            # keep looping
+                job_status["progress"] = f"Error on concurrency={conc}: {type(e).__name__}. Retrying with lower concurrency..."
+            # On last attempt, re-raise
+            if conc == 1:
+                raise
+            # Otherwise, small pause before retry
+            await asyncio.sleep(0.5)
+                # This is unreachable, but silences strict linters/type checkers
+    raise RuntimeError("Extraction failed after concurrency fallback")
 
-    # all levels failed
-    if job_status is not None:
-        job_status["progress"] = (
-            f"All concurrency levels failed: {type(last_err).__name__ if last_err else 'unknown'}"
-        )
-        job_status["error"] = (
-            f"extraction_failed:{type(last_err).__name__ if last_err else 'unknown'}"
-        )
-    raise last_err if last_err else RuntimeError("Unknown extraction failure")
 
 
 def extract_answers(
@@ -414,5 +366,6 @@ def extract_answers(
 ) -> Dict[str, object]:
     """
     Sync convenience wrapper (used by local/manual calls).
+    Runs concurrency fallback extraction (3 → 2 → 1).
     """
     return asyncio.run(extract_answers_async(pdf_path, mapping, job_status))
