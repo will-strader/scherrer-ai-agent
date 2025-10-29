@@ -13,6 +13,11 @@
       .spinner { display: none; width: 24px; height: 24px; border: 3px solid #ddd; border-top-color: #555; border-radius: 50%; animation: spin 1s linear infinite; }
       @keyframes spin { to { transform: rotate(360deg); } }
       .error { color: #b00020; background: #ffecec; padding: 8px 12px; border-radius: 10px; border: 1px solid #f4bdbd; margin-top: 8px; }
+      .progress-wrap { margin-top: 10px; }
+      .progress { width: 100%; height: 12px; background: #eee; border-radius: 999px; overflow: hidden; }
+      .progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 400ms ease; }
+      .progress-stats { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 6px; }
+      .mini-log { font-size: 12px; color: #444; background: #fafafa; border: 1px dashed #ddd; padding: 8px; border-radius: 8px; max-height: 120px; overflow: auto; margin-top: 8px; }
     </style>
   </head>
   <body>
@@ -35,6 +40,17 @@
       <div id="errorBox" class="error" style="display:none;"></div>
       <div>Status: <span id="status">—</span></div>
       <div class="links" id="links"></div>
+      <div class="progress-wrap">
+        <div class="progress" aria-label="Overall progress">
+          <div id="progressBar"></div>
+        </div>
+        <div class="progress-stats">
+          <span id="progressPct">0%</span>
+          <span id="progressDetail">0 / 0 chunks</span>
+          <span id="progressStage">—</span>
+        </div>
+        <div id="miniLog" class="mini-log" style="display:none;"></div>
+      </div>
       <pre id="debug"></pre>
     </div>
 
@@ -52,6 +68,12 @@
       const errorBox = document.getElementById('errorBox');
       const progressMsg = document.getElementById('progressMsg');
       const submitBtn = document.querySelector('button[type="submit"]');
+
+      const progressBar = document.getElementById('progressBar');
+      const progressPct = document.getElementById('progressPct');
+      const progressDetail = document.getElementById('progressDetail');
+      const progressStage = document.getElementById('progressStage');
+      const miniLog = document.getElementById('miniLog');
 
       form.onsubmit = async (e) => {
         e.preventDefault();
@@ -95,6 +117,13 @@
 
         const data = await resp.json();
 
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+        progressDetail.textContent = '0 / 0 chunks';
+        progressStage.textContent = 'Queued';
+        miniLog.textContent = '';
+        miniLog.style.display = 'none';
+
         statusCard.style.display = 'block';
         statusEl.textContent = data.status || 'queued';
         linksEl.innerHTML = '';
@@ -102,26 +131,36 @@
         progressMsg.textContent = 'Processing…';
 
         const jobId = data.job_id;
-        const poll = setInterval(async () => {
+
+        // Adaptive poller with backoff (1.2s -> 5s)
+        let pollMs = 1200;
+        async function pollStatus() {
           try {
-            let pollHeaders = {};
-            const r = await fetch(`${API}/status/${jobId}`, {
-              headers: pollHeaders
-            });
+            const r = await fetch(`${API}/status/${jobId}`);
             if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
             const s = await r.json();
+
             statusEl.textContent = s.status;
+            // Progress handling: expect s.progress = { pct, processed_chunks, total_chunks, stage, log }
+            const p = s.progress || {};
+            const pct = Math.max(0, Math.min(100, Math.round(p.pct ?? 0)));
+            progressBar.style.width = pct + '%';
+            progressPct.textContent = pct + '%';
+            progressDetail.textContent = `${p.processed_chunks ?? 0} / ${p.total_chunks ?? 0} chunks`;
+            progressStage.textContent = p.stage || (s.message || 'Working…');
+
+            if (p.log && Array.isArray(p.log) && p.log.length) {
+              miniLog.style.display = 'block';
+              miniLog.textContent = p.log.slice(-12).join('\n');
+            }
 
             if (s.status === 'done') {
-              clearInterval(poll);
               spinner.style.display = 'none';
               submitBtn.disabled = false;
               progressMsg.textContent = s.message || 'Completed.';
               if (s.output_paths?.json) {
                 try {
-                  const j = await fetch(`${API}${s.output_paths.json}`, {
-                    headers: pollHeaders
-                  });
+                  const j = await fetch(`${API}${s.output_paths.json}`);
                   if (j.ok) {
                     const jdata = await j.json();
                     debugEl.textContent = JSON.stringify(jdata, null, 2);
@@ -131,26 +170,30 @@
               if (s.output_paths?.excel) {
                 linksEl.innerHTML = `<a href="${API}${s.output_paths.excel}" download>Download Excel</a>`;
               }
-            } else if (s.status === 'error') {
-              clearInterval(poll);
+              return; // stop polling
+            }
+
+            if (s.status === 'error') {
               spinner.style.display = 'none';
               submitBtn.disabled = false;
               progressMsg.textContent = s.message || 'Error.';
               errorBox.textContent = s.message || 'An unknown error occurred during processing.';
               errorBox.style.display = 'block';
-            } else {
-              // queued | processing
-              progressMsg.textContent = s.status + (s.message ? `: ${s.message}` : '');
+              return; // stop polling
             }
+
+            // Backoff up to 5s as job runs longer
+            pollMs = Math.min(5000, pollMs + 300);
+            setTimeout(pollStatus, pollMs);
           } catch (err) {
-            clearInterval(poll);
             spinner.style.display = 'none';
             submitBtn.disabled = false;
             progressMsg.textContent = 'Error.';
             errorBox.textContent = `Error fetching status: ${err}`;
             errorBox.style.display = 'block';
           }
-        }, 1200);
+        }
+        pollStatus();
       };
     </script>
 </body>

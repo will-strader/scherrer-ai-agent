@@ -59,16 +59,62 @@ app.add_middleware(
 # In-memory job registry (good enough for local dev)
 JOBS = {}  # job_id -> JobStatus
 
+# --- Progress tracking helpers ---
+DEFAULT_PROGRESS = {
+    "pct": 0,
+    "processed_chunks": 0,
+    "total_chunks": 0,
+    "stage": "queued",
+    "log": [],  # keep short rolling log
+}
+
+def _job(job_id: str) -> dict:
+    j = JOBS.get(job_id)
+    if j is None:
+        raise KeyError(f"Unknown job {job_id}")
+    return j
+
+def log_progress(job_id: str, note: str):
+    job = _job(job_id)
+    prog = job.setdefault("progress", dict(DEFAULT_PROGRESS))
+    # append note (trim list to last 50 entries)
+    prog.setdefault("log", [])
+    prog["log"].append(note)
+    if len(prog["log"]) > 50:
+        prog["log"] = prog["log"][-50:]
+    save_job_state(job_id)
+
+def set_progress(job_id: str, *, pct: int | None = None, stage: str | None = None,
+                 processed_chunks: int | None = None, total_chunks: int | None = None,
+                 note: str | None = None):
+    job = _job(job_id)
+    prog = job.setdefault("progress", dict(DEFAULT_PROGRESS))
+    if pct is not None:
+        prog["pct"] = max(0, min(100, int(pct)))
+    if stage is not None:
+        prog["stage"] = stage
+    if processed_chunks is not None:
+        prog["processed_chunks"] = int(processed_chunks)
+    if total_chunks is not None:
+        prog["total_chunks"] = int(total_chunks)
+    if note:
+        prog.setdefault("log", [])
+        prog["log"].append(note)
+        if len(prog["log"]) > 50:
+            prog["log"] = prog["log"][-50:]
+    save_job_state(job_id)
+
 def save_job_state(job_id: str):
     job = JOBS.get(job_id)
     if job is None:
         return
-    # Save only job_id, status, message, output_paths
+    # Save only job_id, status, message, output_paths, progress
     data = {
         "job_id": job.get("job_id"),
         "status": job.get("status"),
         "message": job.get("message"),
         "output_paths": job.get("output_paths", {}),
+        "progress": job.get("progress", DEFAULT_PROGRESS),
     }
     job_file = JOBS_DIR / f"{job_id}.json"
     with job_file.open("w", encoding="utf-8") as f:
@@ -85,6 +131,7 @@ def load_job_state(job_id: str):
             "status": data.get("status"),
             "message": data.get("message"),
             "output_paths": data.get("output_paths", {}),
+            "progress": data.get("progress", dict(DEFAULT_PROGRESS)),
         }
         print(f"[{job_id}] Job state loaded from disk at {job_file}")
         return JOBS[job_id]
@@ -117,13 +164,15 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
     with pdf_path.open("wb") as f:
         f.write(await file.read())
 
-    # initialize job
+    # initialize job with progress
     JOBS[job_id] = {
         "job_id": job_id,
         "status": "queued",
         "output_paths": {},
         "message": None,
+        "progress": dict(DEFAULT_PROGRESS),
     }
+    set_progress(job_id, pct=1, stage="queued", note="Job created; file saved")
     save_job_state(job_id)
 
     import threading
@@ -135,21 +184,33 @@ async def _process_job(job_id: str, pdf_path: Path):
         JOBS[job_id]["status"] = "processing"
         JOBS[job_id]["message"] = "Loading mapping"
         save_job_state(job_id)
+        set_progress(job_id, pct=5, stage="loading mapping", note="Loading mapping CSV")
         print(f"[{job_id}] Loading mapping")
 
         # 1) load mapping (handles your Numbers/CSV quirks)
         mapping = load_mapping(MAPPING_CSV)
         JOBS[job_id]["message"] = "Mapping loaded"
         save_job_state(job_id)
+        set_progress(job_id, pct=10, stage="mapping loaded", note="Mapping loaded")
         print(f"[{job_id}] Mapping loaded")
 
         # 2) extract answers from the PDF using OpenAI (returns dict keyed by json_key)
         JOBS[job_id]["message"] = "Extracting answers from PDF"
         save_job_state(job_id)
+        set_progress(job_id, pct=15, stage="extracting", note="Starting extraction")
         print(f"[{job_id}] Extracting answers from PDF")
-        raw_answers = await extract_answers_async(pdf_path, mapping)
+
+        def progress_cb(done: int, total: int, note: str | None = None):
+            # Map chunk progress to 15..85% range
+            pct = 15 if total <= 0 else 15 + int((done / max(1, total)) * 70)
+            set_progress(job_id, pct=pct, stage="extracting",
+                         processed_chunks=done, total_chunks=total,
+                         note=note or f"Processed {done}/{total}")
+
+        raw_answers = await extract_answers_async(pdf_path, mapping, progress_cb=progress_cb)
         JOBS[job_id]["message"] = "Extraction complete"
         save_job_state(job_id)
+        set_progress(job_id, pct=86, stage="post-processing", note="Extraction complete")
         print(f"[{job_id}] Extraction complete")
 
         # Prepare structured answers including answer, confidence, and source
@@ -167,6 +228,7 @@ async def _process_job(job_id: str, pdf_path: Path):
 
         JOBS[job_id]["message"] = "Writing JSON results"
         save_job_state(job_id)
+        set_progress(job_id, pct=88, stage="writing json", note="Writing JSON output")
         print(f"[{job_id}] Writing JSON results")
 
         # 3) write raw JSON for debugging/auditing
@@ -174,6 +236,7 @@ async def _process_job(job_id: str, pdf_path: Path):
         json_out.write_text(json.dumps(structured_answers, indent=2))
         JOBS[job_id]["message"] = "JSON results written"
         save_job_state(job_id)
+        set_progress(job_id, pct=90, stage="writing excel", note="Filling Excel template")
         print(f"[{job_id}] JSON results written")
 
         # 4) fill the real Excel template (preserves formatting/formulas)
@@ -183,6 +246,7 @@ async def _process_job(job_id: str, pdf_path: Path):
         fill_template(mapping, structured_answers, xlsx_out := OUTPUTS / f"{pdf_path.stem}__{job_id}.xlsx")
         JOBS[job_id]["message"] = "Excel template filled"
         save_job_state(job_id)
+        set_progress(job_id, pct=98, stage="finalizing", note="Preparing download links")
         print(f"[{job_id}] Excel template filled")
 
         JOBS[job_id]["output_paths"] = {
@@ -191,6 +255,7 @@ async def _process_job(job_id: str, pdf_path: Path):
         }
         JOBS[job_id]["message"] = "Completed"
         JOBS[job_id]["status"] = "done"
+        set_progress(job_id, pct=100, stage="done", note="Completed")
         save_job_state(job_id)
         print(f"[{job_id}] Background job started successfully on thread")
     except Exception as e:
@@ -198,6 +263,7 @@ async def _process_job(job_id: str, pdf_path: Path):
         traceback.print_exc()
         JOBS[job_id]["status"] = "error"
         JOBS[job_id]["message"] = str(e)
+        set_progress(job_id, stage="error", note=str(e))
         save_job_state(job_id)
 
 @app.get("/status/{job_id}", response_model=JobStatus)
@@ -207,6 +273,8 @@ def status(job_id: str):
         job = load_job_state(job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Unknown job")
+    if "progress" not in job:
+        job["progress"] = dict(DEFAULT_PROGRESS)
     return JobStatus(**job)
 
 @app.get(
