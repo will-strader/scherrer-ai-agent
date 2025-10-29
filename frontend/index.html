@@ -39,13 +39,6 @@
     </div>
 
     <script>
-      // API key usage updated: now uses a global variable window.FRONTEND_ACCESS_TOKEN if available,
-      // otherwise empty string. No prompt.
-      const FRONTEND_ACCESS_TOKEN = window.FRONTEND_ACCESS_TOKEN || "";
-      if (!FRONTEND_ACCESS_TOKEN) {
-        console.warn("No frontend access token provided; proceeding without authentication.");
-      }
-
       const API = location.hostname === "localhost" || location.hostname === "127.0.0.1"
         ? "http://127.0.0.1:8000"
         : "https://scherrer-ai-agent.onrender.com";
@@ -77,9 +70,6 @@
         fd.append('file', file);
 
         let headers = {};
-        if (FRONTEND_ACCESS_TOKEN) {
-          headers["x-frontend-token"] = FRONTEND_ACCESS_TOKEN;
-        }
 
         let resp;
         try {
@@ -115,9 +105,6 @@
         const poll = setInterval(async () => {
           try {
             let pollHeaders = {};
-            if (FRONTEND_ACCESS_TOKEN) {
-              pollHeaders["x-frontend-token"] = FRONTEND_ACCESS_TOKEN;
-            }
             const r = await fetch(`${API}/status/${jobId}`, {
               headers: pollHeaders
             });
