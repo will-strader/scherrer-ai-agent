@@ -3,7 +3,7 @@ from pathlib import Path
 import re
 import json
 import pdfplumber
-from typing import List, Dict
+from typing import List, Dict, Optional, Callable
 import asyncio
 import random
 from openai import AsyncOpenAI
@@ -248,6 +248,7 @@ async def _extract_with_concurrency(
     mapping: Mapping,
     job_status: dict | None,
     max_concurrency: int,
+    progress_cb: Optional[Callable[[int, int, str], None]] = None,
 ) -> Dict[str, object]:
     """
     Bounded-concurrency extractor using an async queue and a small worker pool.
@@ -258,6 +259,9 @@ async def _extract_with_concurrency(
     system_msg = _build_instructions(mapping)
 
     merged: Dict[str, dict | None] = {k: None for k in keys}
+
+    # Track total chunks so the UI can display a proper progress bar.
+    total_chunks: int = 0
 
     # Small queue so we don't buffer the whole PDF.
     queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue(maxsize=max_concurrency * 2)
@@ -275,6 +279,8 @@ async def _extract_with_concurrency(
             try:
                 partial = await _process_chunk(idx, chunk_text, keys, mapping, system_msg, job_status)
                 results[idx] = partial
+                if progress_cb:
+                    progress_cb(len(results), total_chunks, note=f"chunk {idx+1} complete")
             except BaseException as e:  # capture and propagate later
                 exception_holder.append(e)
             finally:
@@ -286,11 +292,18 @@ async def _extract_with_concurrency(
     # Producer: stream chunks and feed queue
     if job_status is not None:
         job_status["progress"] = f"Preparing chunks (concurrency={max_concurrency})"
+    if progress_cb:
+        progress_cb(0, 0, note=f"preparing chunks (conc={max_concurrency})")
 
     idx = 0
     for chunk_text in _iter_chunks_from_pdf(pdf_path):
         await queue.put((idx, chunk_text))
         idx += 1
+
+    # Record total number of chunks produced
+    total_chunks = idx
+    if progress_cb:
+        progress_cb(0, total_chunks, note=f"queued {total_chunks} chunks")
 
     # Tell workers to stop
     for _ in workers:
@@ -329,6 +342,9 @@ async def _extract_with_concurrency(
         job_status["result"] = merged
         job_status["progress"] = "Extraction complete"
 
+    if progress_cb:
+        progress_cb(len(results), total_chunks, note="extraction complete")
+
     return merged
 
 
@@ -336,6 +352,7 @@ async def extract_answers_async(
     pdf_path: Path,
     mapping: Mapping,
     job_status: dict | None = None,
+    progress_cb: Optional[Callable[[int, int, str], None]] = None,
 ) -> Dict[str, object]:
     """
     Async extractor with bounded concurrency and automatic fallback
@@ -345,7 +362,7 @@ async def extract_answers_async(
         try:
             if job_status is not None:
                 job_status["progress"] = f"Starting extraction (concurrency={conc})"
-            return await _extract_with_concurrency(pdf_path, mapping, job_status, conc)
+            return await _extract_with_concurrency(pdf_path, mapping, job_status, conc, progress_cb=progress_cb)
         except BaseException as e:
             if job_status is not None:
                 job_status["progress"] = f"Error on concurrency={conc}: {type(e).__name__}. Retrying with lower concurrency..."
@@ -363,9 +380,10 @@ def extract_answers(
     pdf_path: Path,
     mapping: Mapping,
     job_status: dict | None = None,
+    progress_cb: Optional[Callable[[int, int, str], None]] = None,
 ) -> Dict[str, object]:
     """
     Sync convenience wrapper (used by local/manual calls).
     Runs concurrency fallback extraction (3 → 2 → 1).
     """
-    return asyncio.run(extract_answers_async(pdf_path, mapping, job_status))
+    return asyncio.run(extract_answers_async(pdf_path, mapping, job_status, progress_cb=progress_cb))
