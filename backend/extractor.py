@@ -242,6 +242,26 @@ def _iter_chunks_from_pdf(pdf_path: Path, target_chars: int = 12000):
         if buf:
             yield buf
 
+def _count_chunks_from_pdf(pdf_path: Path, target_chars: int = 12000) -> int:
+    count = 0
+    buf_len = 0
+    with pdfplumber.open(pdf_path) as pdf:
+        for p in pdf.pages:
+            try:
+                raw = p.extract_text() or ""
+            except Exception:
+                raw = ""
+            norm = re.sub(r"[ \t]+", " ", raw)
+            n = len(norm) + (1 if buf_len else 0)  # account for newline join
+            if buf_len and (buf_len + n > target_chars):
+                count += 1
+                buf_len = len(norm)
+            else:
+                buf_len += n
+        if buf_len:
+            count += 1
+    return count
+
 
 async def _extract_with_concurrency(
     pdf_path: Path,
@@ -258,10 +278,15 @@ async def _extract_with_concurrency(
     keys = mapping.json_keys()
     system_msg = _build_instructions(mapping)
 
-    merged: Dict[str, dict | None] = {k: None for k in keys}
+    total_chunks = _count_chunks_from_pdf(pdf_path)
+    if job_status is not None:
+        job_status["total_chunks"] = total_chunks
+        job_status["completed_chunks"] = 0
+        job_status["progress"] = f"Preparing chunks (concurrency={max_concurrency})"
+    if progress_cb:
+        progress_cb(0, total_chunks, note=f"preparing chunks (conc={max_concurrency})")
 
-    # Track total chunks so the UI can display a proper progress bar.
-    total_chunks: int = 0
+    merged: Dict[str, dict | None] = {k: None for k in keys}
 
     # Small queue so we don't buffer the whole PDF.
     queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue(maxsize=max_concurrency * 2)
@@ -279,6 +304,9 @@ async def _extract_with_concurrency(
             try:
                 partial = await _process_chunk(idx, chunk_text, keys, mapping, system_msg, job_status)
                 results[idx] = partial
+                if job_status is not None:
+                    job_status["completed_chunks"] = len(results)
+                    job_status["total_chunks"] = total_chunks
                 if progress_cb:
                     progress_cb(len(results), total_chunks, note=f"chunk {idx+1} complete")
             except BaseException as e:  # capture and propagate later
@@ -290,20 +318,10 @@ async def _extract_with_concurrency(
     workers = [asyncio.create_task(worker(i)) for i in range(max(1, max_concurrency))]
 
     # Producer: stream chunks and feed queue
-    if job_status is not None:
-        job_status["progress"] = f"Preparing chunks (concurrency={max_concurrency})"
-    if progress_cb:
-        progress_cb(0, 0, note=f"preparing chunks (conc={max_concurrency})")
-
     idx = 0
     for chunk_text in _iter_chunks_from_pdf(pdf_path):
         await queue.put((idx, chunk_text))
         idx += 1
-
-    # Record total number of chunks produced
-    total_chunks = idx
-    if progress_cb:
-        progress_cb(0, total_chunks, note=f"queued {total_chunks} chunks")
 
     # Tell workers to stop
     for _ in workers:
@@ -341,6 +359,8 @@ async def _extract_with_concurrency(
     if job_status is not None:
         job_status["result"] = merged
         job_status["progress"] = "Extraction complete"
+        job_status["completed_chunks"] = len(results)
+        job_status["total_chunks"] = total_chunks
 
     if progress_cb:
         progress_cb(len(results), total_chunks, note="extraction complete")

@@ -157,6 +157,7 @@ async def process_pdf(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     concurrency: int | None = Form(None),
+    speed: str | None = Form(None),
 ):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Please upload a .pdf")
@@ -168,15 +169,32 @@ async def process_pdf(
     with pdf_path.open("wb") as f:
         f.write(await file.read())
 
-    # read requested concurrency from form (optional) and clamp to safe range
-    if concurrency is None:
-        requested_concurrency = 2  # default (Normal)
-    else:
+    # Determine concurrency from either explicit "concurrency" or human-friendly "speed"
+    speed_map = {
+        "slow": 1,
+        "normal": 2,
+        "medium": 2,
+        "fast": 3,
+        "turbo": 4,
+        "max": 6,
+        "insane": 6,
+    }
+    requested_concurrency = 2  # sensible default
+
+    # Prefer explicit numeric concurrency if provided
+    if concurrency is not None:
         try:
             requested_concurrency = int(concurrency)
         except (TypeError, ValueError):
             requested_concurrency = 2
-    # clamp between 1 and 6 to avoid overloading free-tier dynos
+    elif speed is not None:
+        s = str(speed).strip().lower()
+        if s.isdigit():
+            requested_concurrency = int(s)
+        else:
+            requested_concurrency = speed_map.get(s, 2)
+
+    # Clamp between 1 and 6 to avoid overloading shared dynos
     requested_concurrency = max(1, min(6, requested_concurrency))
 
     # initialize job with progress
@@ -188,7 +206,10 @@ async def process_pdf(
         "progress": dict(DEFAULT_PROGRESS),
         "concurrency": requested_concurrency,
     }
-    set_progress(job_id, pct=1, stage="queued", note=f"Job created; file saved (concurrency={requested_concurrency})")
+    set_progress(
+        job_id, pct=1, stage="queued",
+        note=f"Job created; file saved (concurrency={requested_concurrency}{f', speed={speed}' if speed else ''})"
+    )
     save_job_state(job_id)
 
     import threading
