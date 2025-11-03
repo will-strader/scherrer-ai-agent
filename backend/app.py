@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import asyncio
 
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException, Depends, Header
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException, Depends, Header, Form
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -153,7 +153,11 @@ def ping():
     "/process",
     response_model=ProcessResponse,
 )
-async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+async def process_pdf(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    concurrency: int | None = Form(None),
+):
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Please upload a .pdf")
 
@@ -164,6 +168,17 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
     with pdf_path.open("wb") as f:
         f.write(await file.read())
 
+    # read requested concurrency from form (optional) and clamp to safe range
+    if concurrency is None:
+        requested_concurrency = 2  # default (Normal)
+    else:
+        try:
+            requested_concurrency = int(concurrency)
+        except (TypeError, ValueError):
+            requested_concurrency = 2
+    # clamp between 1 and 6 to avoid overloading free-tier dynos
+    requested_concurrency = max(1, min(6, requested_concurrency))
+
     # initialize job with progress
     JOBS[job_id] = {
         "job_id": job_id,
@@ -171,8 +186,9 @@ async def process_pdf(background_tasks: BackgroundTasks, file: UploadFile = File
         "output_paths": {},
         "message": None,
         "progress": dict(DEFAULT_PROGRESS),
+        "concurrency": requested_concurrency,
     }
-    set_progress(job_id, pct=1, stage="queued", note="Job created; file saved")
+    set_progress(job_id, pct=1, stage="queued", note=f"Job created; file saved (concurrency={requested_concurrency})")
     save_job_state(job_id)
 
     import threading
@@ -197,7 +213,8 @@ async def _process_job(job_id: str, pdf_path: Path):
         # 2) extract answers from the PDF using OpenAI (returns dict keyed by json_key)
         JOBS[job_id]["message"] = "Extracting answers from PDF"
         save_job_state(job_id)
-        set_progress(job_id, pct=15, stage="extracting", note="Starting extraction")
+        desired_concurrency = JOBS.get(job_id, {}).get("concurrency", 2)
+        set_progress(job_id, pct=15, stage="extracting", note=f"Starting extraction (concurrency={desired_concurrency})")
         print(f"[{job_id}] Extracting answers from PDF")
 
         def progress_cb(done: int, total: int, note: str | None = None):
@@ -207,7 +224,7 @@ async def _process_job(job_id: str, pdf_path: Path):
                          processed_chunks=done, total_chunks=total,
                          note=note or f"Processed {done}/{total}")
 
-        raw_answers = await extract_answers_async(pdf_path, mapping, progress_cb=progress_cb)
+        raw_answers = await extract_answers_async(pdf_path, mapping, progress_cb=progress_cb, concurrency=desired_concurrency)
         JOBS[job_id]["message"] = "Extraction complete"
         save_job_state(job_id)
         set_progress(job_id, pct=86, stage="post-processing", note="Extraction complete")

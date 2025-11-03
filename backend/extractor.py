@@ -353,25 +353,42 @@ async def extract_answers_async(
     mapping: Mapping,
     job_status: dict | None = None,
     progress_cb: Optional[Callable[[int, int, str], None]] = None,
+    concurrency: Optional[int] = None,
 ) -> Dict[str, object]:
     """
     Async extractor with bounded concurrency and automatic fallback
     (3 → 2 → 1) if an exception occurs.
     """
-    for conc in (3, 2, 1):
+    # Build the concurrency attempt list.
+    if concurrency is not None:
+        try:
+            start = int(concurrency)
+        except Exception:
+            start = 3
+        start = max(1, min(start, 6))  # clamp to [1,6]
+        conc_list = list(range(start, 0, -1))  # e.g., 5,4,3,2,1
+    else:
+        conc_list = [3, 2, 1]
+
+    for conc in conc_list:
         try:
             if job_status is not None:
                 job_status["progress"] = f"Starting extraction (concurrency={conc})"
-            return await _extract_with_concurrency(pdf_path, mapping, job_status, conc, progress_cb=progress_cb)
+                job_status["concurrency"] = conc
+            return await _extract_with_concurrency(
+                pdf_path, mapping, job_status, conc, progress_cb=progress_cb
+            )
         except BaseException as e:
             if job_status is not None:
-                job_status["progress"] = f"Error on concurrency={conc}: {type(e).__name__}. Retrying with lower concurrency..."
+                job_status["progress"] = (
+                    f"Error on concurrency={conc}: {type(e).__name__}. Retrying with lower concurrency..."
+                )
             # On last attempt, re-raise
             if conc == 1:
                 raise
             # Otherwise, small pause before retry
             await asyncio.sleep(0.5)
-                # This is unreachable, but silences strict linters/type checkers
+
     raise RuntimeError("Extraction failed after concurrency fallback")
 
 
@@ -381,9 +398,18 @@ def extract_answers(
     mapping: Mapping,
     job_status: dict | None = None,
     progress_cb: Optional[Callable[[int, int, str], None]] = None,
+    concurrency: Optional[int] = None,
 ) -> Dict[str, object]:
     """
     Sync convenience wrapper (used by local/manual calls).
     Runs concurrency fallback extraction (3 → 2 → 1).
     """
-    return asyncio.run(extract_answers_async(pdf_path, mapping, job_status, progress_cb=progress_cb))
+    return asyncio.run(
+        extract_answers_async(
+            pdf_path,
+            mapping,
+            job_status,
+            progress_cb=progress_cb,
+            concurrency=concurrency,
+        )
+    )
