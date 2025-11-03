@@ -260,7 +260,7 @@ def _count_chunks_from_pdf(pdf_path: Path, target_chars: int = 12000) -> int:
                 buf_len += n
         if buf_len:
             count += 1
-    return count
+    return max(count, 1)
 
 
 async def _extract_with_concurrency(
@@ -268,7 +268,7 @@ async def _extract_with_concurrency(
     mapping: Mapping,
     job_status: dict | None,
     max_concurrency: int,
-    progress_cb: Optional[Callable[[int, int, str], None]] = None,
+    progress_cb: Optional[Callable[[int, int, Optional[str]], None]] = None,
 ) -> Dict[str, object]:
     """
     Bounded-concurrency extractor using an async queue and a small worker pool.
@@ -279,6 +279,8 @@ async def _extract_with_concurrency(
     system_msg = _build_instructions(mapping)
 
     total_chunks = _count_chunks_from_pdf(pdf_path)
+    if total_chunks <= 0:
+        total_chunks = 1
     if job_status is not None:
         job_status["total_chunks"] = total_chunks
         job_status["completed_chunks"] = 0
@@ -372,7 +374,7 @@ async def extract_answers_async(
     pdf_path: Path,
     mapping: Mapping,
     job_status: dict | None = None,
-    progress_cb: Optional[Callable[[int, int, str], None]] = None,
+    progress_cb: Optional[Callable[[int, int, Optional[str]], None]] = None,
     concurrency: Optional[int] = None,
 ) -> Dict[str, object]:
     """
