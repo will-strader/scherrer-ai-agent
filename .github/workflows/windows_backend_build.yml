@@ -1,0 +1,77 @@
+name: Windows Backend Build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+
+    env:
+      # Your backend reads from .env at runtime; during packaging we also embed assets.
+      # DO NOT hardcode secrets here — set them in GitHub > Settings > Secrets and variables > Actions
+      # and reference them as needed at runtime (not during build unless truly required).
+      PYTHONUTF8: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+          python -m pip install pyinstaller
+
+      # Build a minimal .env that reads from runner env if you want defaults at runtime.
+      # Prefer keeping secrets OUT of the binary; end users should supply their own .env.
+      - name: Prepare runtime .env (no secrets)
+        working-directory: backend
+        shell: bash
+        run: |
+          cat > .env << 'EOF'
+          # Placeholders; end users should edit this on their machine.
+          OPENAI_API_KEY=
+          MODEL_NAME=gpt-4o-mini
+          MODEL_TEMPERATURE=0.30
+
+          # Default asset paths (relative to exe using paths.py)
+          MAPPING_CSV=question_mapping_template_new.csv
+          EXCEL_TEMPLATE=bid checklist.xlsx
+          EOF
+
+      # PyInstaller: bundle backend as a single-file exe.
+      # We include the mapping CSV + Excel template alongside the exe using --add-data.
+      # On Windows, the syntax is: src;dest
+      - name: Build exe with PyInstaller
+        run: |
+          pyinstaller ^
+            --onefile ^
+            --name scherrer-bid-backend ^
+            --add-data "backend\\.env;." ^
+            --add-data "question_mapping_template_new.csv;." ^
+            --add-data "bid checklist.xlsx;." ^
+            --paths backend ^
+            backend\\run_backend.py
+
+      - name: Upload artifact (exe)
+        uses: actions/upload-artifact@v4
+        with:
+          name: scherrer-bid-backend-win
+          path: dist/scherrer-bid-backend.exe

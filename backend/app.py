@@ -141,6 +141,11 @@ def load_job_state(job_id: str):
 def home():
     return "<h3>AI Bid Assistant Backend</h3><p>POST /process with a PDF to get started.</p>"
 
+@app.head("/")
+def home_head():
+    # Return 200 for platform health checks that send HEAD requests
+    return HTMLResponse(status_code=200)
+
 @app.get("/version")
 def version():
     return {"version": VERSION, "backend": True}
@@ -166,8 +171,19 @@ async def process_pdf(
     ts = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
     pdf_name = f"{ts}__{job_id}__{file.filename}"
     pdf_path = UPLOADS / pdf_name
-    with pdf_path.open("wb") as f:
-        f.write(await file.read())
+
+    # Stream the upload to disk to avoid loading the whole file into memory
+    async def _stream_to_disk(upload: UploadFile, dest: Path, chunk_size: int = 1024 * 1024) -> None:
+        with dest.open("wb") as out:
+            while True:
+                chunk = await upload.read(chunk_size)
+                if not chunk:
+                    break
+                out.write(chunk)
+        # reset pointer in case the object is reused downstream
+        await upload.seek(0)
+
+    await _stream_to_disk(file, pdf_path)
 
     # Determine concurrency from either explicit "concurrency" or human-friendly "speed"
     speed_map = {
@@ -319,8 +335,9 @@ def status(job_id: str):
     "/download/{filename}",
 )
 def download(filename: str):
-    path = OUTPUTS / filename
-    if not path.exists():
+    # Resolve and ensure the file lives under OUTPUTS to prevent path traversal
+    path = (OUTPUTS / filename).resolve()
+    if not path.exists() or OUTPUTS.resolve() not in path.parents:
         raise HTTPException(status_code=404, detail="File not found")
     media = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" if filename.endswith(".xlsx") else "application/json"
     return FileResponse(path, media_type=media, filename=filename)

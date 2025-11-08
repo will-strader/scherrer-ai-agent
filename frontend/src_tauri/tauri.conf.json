@@ -1,0 +1,59 @@
+{
+  "package": {
+    "productName": "Scherrer Bid Assistant",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "bundle": {
+      "active": true,
+      "targets": ["msi", "nsis"],
+      "identifier": "com.scherrer.bidassistant",
+      "icon": [
+        "icons/icon.ico"
+      ],
+      "resources": [
+        "resources/scherrer-bid-backend.exe",
+        "resources/.env",
+        "resources/question_mapping_template_new.csv",
+        "resources/bid checklist.xlsx"
+      ]
+    },
+    "windows": [
+      {
+        "title": "Scherrer AI Bid Assistant",
+        "width": 1200,
+        "height": 800,
+        "resizable": true
+      }
+    ],
+    "allowlist": {
+      "shell": {
+        "all": true
+      },
+      "dialog": {
+        "open": true,
+        "save": true
+      },
+      "fs": {
+        "readTextFile": true,
+        "writeFile": true,
+        "createDir": true
+      },
+      "http": {
+        "request": true
+      }
+    },
+    "updater": {
+      "active": false
+    },
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self' http://localhost:*;"
+    }
+  },
+  "build": {
+    "beforeBuildCommand": "npm install",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:1420",
+    "distDir": "../dist"
+  }
+}
