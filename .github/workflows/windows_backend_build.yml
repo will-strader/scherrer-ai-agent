@@ -56,19 +56,18 @@ jobs:
           gci -Force .
           gci -Force backend
 
-      # IMPORTANT: run under PowerShell and avoid line continuations that break parsing.
-      - name: Build exe with PyInstaller
-        shell: pwsh
-        run: >
-          pyinstaller --onefile --name scherrer-bid-backend
-          --add-data "backend\.env;."
-          --add-data "question_mapping_template_new.csv;."
-          --add-data "bid checklist.xlsx;."
-          --paths backend backend\run_backend.py
+      - name: Build app folder with PyInstaller (cmd, one-dir)
+        shell: cmd
+        run: |
+          python -m PyInstaller --noconfirm --onedir --name scherrer-bid-backend ^
+            --add-data "backend\.env;." ^
+            --add-data "question_mapping_template_new.csv;." ^
+            --add-data "bid checklist.xlsx;." ^
+            --paths backend backend\run_backend.py
 
-      - name: Upload artifact (exe)
+      - name: Upload artifact (one-dir folder)
         uses: actions/upload-artifact@v4
         with:
-          name: scherrer-bid-backend-win
-          path: dist\scherrer-bid-backend.exe
+          name: scherrer-bid-backend-win-folder
+          path: dist\scherrer-bid-backend\**
           if-no-files-found: error
