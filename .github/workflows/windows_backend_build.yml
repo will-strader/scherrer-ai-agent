@@ -56,22 +56,29 @@ jobs:
           EXCEL_TEMPLATE=bid checklist.xlsx
           EOF
 
-      # PyInstaller: bundle backend as a single-file exe.
-      # We include the mapping CSV + Excel template alongside the exe using --add-data.
-      # On Windows, the syntax is: src;dest
+      - name: Verify inputs exist
+        shell: bash
+        run: |
+          echo "Repo root contents:"
+          ls -la .
+          echo "Backend directory contents:"
+          ls -la backend
+
       - name: Build exe with PyInstaller
+        shell: cmd
         run: |
           pyinstaller ^
             --onefile ^
             --name scherrer-bid-backend ^
-            --add-data "backend\\.env;." ^
+            --add-data "backend\.env;." ^
             --add-data "question_mapping_template_new.csv;." ^
             --add-data "bid checklist.xlsx;." ^
             --paths backend ^
-            backend\\run_backend.py
+            backend\run_backend.py
 
       - name: Upload artifact (exe)
         uses: actions/upload-artifact@v4
         with:
           name: scherrer-bid-backend-win
-          path: dist/scherrer-bid-backend.exe
+          path: dist\scherrer-bid-backend.exe
+          if-no-files-found: error
