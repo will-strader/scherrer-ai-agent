@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -56,14 +58,23 @@ jobs:
           gci -Force .
           gci -Force backend
 
+      - name: Verify assets exist (explicit)
+        shell: cmd
+        run: |
+          dir "%GITHUB_WORKSPACE%"
+          dir "%GITHUB_WORKSPACE%\backend"
+          if not exist "%GITHUB_WORKSPACE%\question_mapping_template_new.csv" (echo MISSING CSV & exit /b 1)
+          if not exist "%GITHUB_WORKSPACE%\bid checklist.xlsx" (echo MISSING XLSX & exit /b 1)
+          if not exist "%GITHUB_WORKSPACE%\backend\.env" (echo MISSING .ENV & exit /b 1)
+
       - name: Build app folder with PyInstaller (cmd, one-dir)
         shell: cmd
         run: |
           python -m PyInstaller --noconfirm --onedir --name scherrer-bid-backend ^
-            --add-data "backend\.env;." ^
-            --add-data "question_mapping_template_new.csv;." ^
-            --add-data "bid checklist.xlsx;." ^
-            --paths backend backend\run_backend.py
+            --add-data "%GITHUB_WORKSPACE%\backend\.env;." ^
+            --add-data "%GITHUB_WORKSPACE%\question_mapping_template_new.csv;." ^
+            --add-data "%GITHUB_WORKSPACE%\bid checklist.xlsx;." ^
+            --paths "%GITHUB_WORKSPACE%\backend" "%GITHUB_WORKSPACE%\backend\run_backend.py"
 
       - name: Upload artifact (one-dir folder)
         uses: actions/upload-artifact@v4
