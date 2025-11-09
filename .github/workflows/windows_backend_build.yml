@@ -63,8 +63,8 @@ jobs:
         run: |
           dir "%GITHUB_WORKSPACE%"
           dir "%GITHUB_WORKSPACE%\backend"
-          if not exist "%GITHUB_WORKSPACE%\question_mapping_template_new.csv" (echo MISSING CSV & exit /b 1)
-          if not exist "%GITHUB_WORKSPACE%\bid checklist.xlsx" (echo MISSING XLSX & exit /b 1)
+          if not exist "%GITHUB_WORKSPACE%\resources\question_mapping_template_new.csv" (echo MISSING CSV & exit /b 1)
+          if not exist "%GITHUB_WORKSPACE%\resources\bid checklist.xlsx" (echo MISSING XLSX & exit /b 1)
           if not exist "%GITHUB_WORKSPACE%\backend\.env" (echo MISSING .ENV & exit /b 1)
 
       - name: Build app folder with PyInstaller (cmd, one-dir)
@@ -72,8 +72,8 @@ jobs:
         run: |
           python -m PyInstaller --noconfirm --onedir --name scherrer-bid-backend ^
             --add-data "%GITHUB_WORKSPACE%\backend\.env;." ^
-            --add-data "%GITHUB_WORKSPACE%\question_mapping_template_new.csv;." ^
-            --add-data "%GITHUB_WORKSPACE%\bid checklist.xlsx;." ^
+            --add-data "%GITHUB_WORKSPACE%\resources\question_mapping_template_new.csv;." ^
+            --add-data "%GITHUB_WORKSPACE%\resources\bid checklist.xlsx;." ^
             --paths "%GITHUB_WORKSPACE%\backend" "%GITHUB_WORKSPACE%\backend\run_backend.py"
 
       - name: Upload artifact (one-dir folder)
