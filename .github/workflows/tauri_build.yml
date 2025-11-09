@@ -51,9 +51,20 @@ jobs:
 
       - name: Install Windows bundlers (NSIS and WiX)
         shell: powershell
+        continue-on-error: true
         run: |
-          choco install nsis -y
-          choco install wixtoolset --version=3.11.2 -y
+          choco list --local-only
+
+          # Install/upgrade NSIS
+          choco upgrade nsis -y --no-progress
+
+          # Try to install WiX 3.11.2; if it fails because it's already installed, upgrade instead
+          choco install wixtoolset --version=3.11.2 -y --no-progress
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "WiX install failed or newer version already installed. Attempting upgrade..."
+            choco upgrade wixtoolset -y --no-progress
+            $global:LASTEXITCODE = 0
+          }
 
       - name: Install Tauri CLI
         shell: bash
