@@ -68,7 +68,13 @@ jobs:
           ls -la backend
 
       - name: Build exe with PyInstaller
-        run: pyinstaller --onefile --name scherrer-bid-backend --add-data "backend\.env;." --add-data "question_mapping_template_new.csv;." --add-data "bid checklist.xlsx;." --paths backend backend\run_backend.py
+        shell: cmd
+        run: >
+          pyinstaller --onefile --name scherrer-bid-backend
+          --add-data backend\.env;.
+          --add-data question_mapping_template_new.csv;.
+          --add-data "bid checklist.xlsx;."
+          --paths backend backend\run_backend.py
 
       - name: Upload artifact (exe)
         uses: actions/upload-artifact@v4
