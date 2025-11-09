@@ -63,7 +63,7 @@ def _resolve_repo_path(val: str, default_name: str) -> Path:
     return p.resolve()
 
 MAPPING_CSV    = _resolve_repo_path(os.getenv("MAPPING_CSV") or "", "question_mapping_template_new.csv")
-EXCEL_TEMPLATE = _resolve_repo_path(os.getenv("EXCEL_TEMPLATE") or "", "bid checklist.xlsx")
+EXCEL_TEMPLATE = _resolve_repo_path(os.getenv("EXCEL_TEMPLATE") or "", "bid_checklist.xlsx")
 
 print(f"[config] Mapping CSV: {MAPPING_CSV}")
 print(f"[config] Excel template: {EXCEL_TEMPLATE}")

@@ -16,6 +16,9 @@
         "resources/.env",
         "resources/question_mapping_template_new.csv",
         "resources/bid checklist.xlsx"
+      ],
+      "externalBin": [
+        "resources/scherrer-bid-backend.exe"
       ]
     },
     "windows": [

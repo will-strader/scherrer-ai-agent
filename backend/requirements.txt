@@ -8,3 +8,12 @@ pdfplumber
 pandas
 chardet
 openai>=1.0.0
+
+# Recommended additions
+aiofiles
+requests
+
+# Optional (for local or advanced usage)
+tqdm
+psutil
+pyinstaller

@@ -49,8 +49,10 @@ fn resolve_backend_paths(app: &AppHandle<Wry>) -> anyhow::Result<(PathBuf, PathB
 fn try_load_env(dotenv_dir: &PathBuf) {
     let dotenv_path = dotenv_dir.join(".env");
     if dotenv_path.exists() {
-        // Optional dependency; if you don't want to add dotenvy, you can skip this block.
+        println!("🔧 Loading .env from {:?}", dotenv_path);
         let _ = dotenvy::from_path(&dotenv_path);
+    } else {
+        println!("No .env found at {:?}", dotenv_path);
     }
 }
 
@@ -62,9 +64,17 @@ fn spawn_backend(exe: &PathBuf, resources_dir: &PathBuf, port: u16) -> anyhow::R
     // Inherit current environment, override PORT, and set working dir to resources (so relative paths work).
     let mut cmd = Command::new(exe);
     cmd.current_dir(resources_dir)
-        .env("PORT", port.to_string())
-        .stdout(Stdio::null())
-        .stderr(Stdio::null());
+        .env("PORT", port.to_string());
+    // In debug builds, inherit stdout/stderr so we can see backend logs in the Tauri console.
+    // In release builds, silence the console.
+    #[cfg(debug_assertions)]
+    {
+        cmd.stdout(Stdio::inherit()).stderr(Stdio::inherit());
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        cmd.stdout(Stdio::null()).stderr(Stdio::null());
+    }
 
     #[cfg(target_os = "windows")]
     {
@@ -80,7 +90,10 @@ fn spawn_backend(exe: &PathBuf, resources_dir: &PathBuf, port: u16) -> anyhow::R
 
 #[tauri::command]
 fn backend_info(state: State<BackendState>) -> Option<u16> {
-    *state.port.lock().ok()?.as_ref()
+    match state.port.lock() {
+        Ok(guard) => *guard,
+        Err(_) => None,
+    }
 }
 
 fn main() {
@@ -95,15 +108,21 @@ fn main() {
                 // Small delay to let the Tauri window come up.
                 tauri::async_runtime::sleep(Duration::from_millis(100)).await;
 
+                println!("Resolving backend paths...");
                 let (exe_path, resources_dir) = match resolve_backend_paths(&app_handle) {
-                    Ok(p) => p,
+                    Ok(p) => {
+                        println!("Resolved backend: exe = {:?}, resources = {:?}", p.0, p.1);
+                        p
+                    },
                     Err(e) => {
+                        println!("❌ Resolve error: {e}");
                         let _ = app_handle.emit_all("backend:error", format!("Resolve error: {e}"));
                         return;
                     }
                 };
 
                 let port = find_free_port();
+                println!("Selected free port: {}", port);
 
                 match spawn_backend(&exe_path, &resources_dir, port) {
                     Ok(child) => {
@@ -115,11 +134,14 @@ fn main() {
                             *c = Some(child);
                         }
 
+                        println!("Backend launched on port {}", port);
+
                         // Give the server a brief moment to bind the port, then notify UI
                         tauri::async_runtime::sleep(Duration::from_millis(600)).await;
                         let _ = app_handle.emit_all("backend:ready", serde_json::json!({ "port": port }));
                     }
                     Err(e) => {
+                        println!("Spawn error: {e}");
                         let _ = app_handle.emit_all("backend:error", format!("Spawn error: {e}"));
                     }
                 }
@@ -131,6 +153,7 @@ fn main() {
             // If the user closes the last window, gracefully kill backend
             if let tauri::WindowEvent::CloseRequested { .. } = event.event() {
                 let app = event.window().app_handle();
+                println!("Window closing: stopping backend...");
                 stop_backend(&app);
             }
         })
@@ -144,6 +167,7 @@ fn main() {
         .run(|app_handle, e| {
             // Ensure backend gets killed on any global exit path.
             if let tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit = e {
+                println!("App exiting: stopping backend...");
                 stop_backend(&app_handle);
             }
         });
@@ -153,10 +177,17 @@ fn stop_backend(app: &AppHandle<Wry>) {
     if let Some(state) = app.try_state::<BackendState>() {
         if let Ok(mut lock) = state.child.lock() {
             if let Some(child) = lock.as_mut() {
+                println!("🔻 Killing backend process (pid: {})", child.id());
                 #[allow(unused_must_use)]
                 { child.kill(); }
+            } else {
+                println!("No backend child to kill.");
             }
             *lock = None;
+        } else {
+            println!("⚠️ Could not lock BackendState.child to stop backend.");
         }
+    } else {
+        println!("BackendState not available; nothing to stop.");
     }
 }

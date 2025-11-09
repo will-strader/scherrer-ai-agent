@@ -57,6 +57,12 @@ jobs:
           mkdir -p frontend/src-tauri/resources
           cp dist/scherrer-bid-backend.exe frontend/src-tauri/resources/
 
+      - name: Install Windows bundlers (NSIS and WiX)
+        shell: powershell
+        run: |
+          choco install nsis -y
+          choco install wixtoolset --version=3.11.2 -y
+
       - name: Build Tauri app
         working-directory: frontend
         run: npm run tauri build
