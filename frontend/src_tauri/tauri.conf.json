@@ -15,7 +15,7 @@
         "resources/scherrer-bid-backend.exe",
         "resources/.env",
         "resources/question_mapping_template_new.csv",
-        "resources/bid checklist.xlsx"
+        "resources/bid_checklist.xlsx"
       ],
       "externalBin": [
         "resources/scherrer-bid-backend.exe"
@@ -54,9 +54,9 @@
     }
   },
   "build": {
-    "beforeBuildCommand": "npm install",
-    "beforeDevCommand": "npm run dev",
-    "devPath": "http://localhost:1420",
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "devPath": "../dist",
     "distDir": "../dist"
   }
 }

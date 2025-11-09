@@ -19,14 +19,8 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install frontend deps
-        working-directory: frontend
-        run: npm ci
+      - name: No Node frontend (skip npm)
+        run: echo "Building a Rust-only Tauri app; skipping npm steps."
 
       - name: Build backend exe (PyInstaller)
         shell: bash
@@ -54,8 +48,8 @@ jobs:
       - name: Copy backend exe into Tauri bundle resources
         shell: bash
         run: |
-          mkdir -p frontend/src-tauri/resources
-          cp dist/scherrer-bid-backend.exe frontend/src-tauri/resources/
+          mkdir -p src_tauri/resources
+          cp dist/scherrer-bid-backend.exe src_tauri/resources/
 
       - name: Install Windows bundlers (NSIS and WiX)
         shell: powershell
@@ -63,14 +57,19 @@ jobs:
           choco install nsis -y
           choco install wixtoolset --version=3.11.2 -y
 
-      - name: Build Tauri app
-        working-directory: frontend
-        run: npm run tauri build
+      - name: Install Tauri CLI
+        shell: bash
+        run: cargo install tauri-cli --locked
+
+      - name: Build Tauri app (Rust-only)
+        working-directory: src_tauri
+        shell: bash
+        run: cargo tauri build --verbose
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
         with:
           name: scherrer-tauri-windows
           path: |
-            frontend/src-tauri/target/release/bundle/msi/*.msi
-            frontend/src-tauri/target/release/bundle/nsis/*.exe
+            src_tauri/target/release/bundle/msi/*.msi
+            src_tauri/target/release/bundle/nsis/*.exe
