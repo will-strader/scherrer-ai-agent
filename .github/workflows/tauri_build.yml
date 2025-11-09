@@ -23,33 +23,31 @@ jobs:
         run: echo "Building a Rust-only Tauri app; skipping npm steps."
 
       - name: Build backend exe (PyInstaller)
-        shell: bash
+        shell: cmd
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r backend/requirements.txt
-          python -m pip install pyinstaller
-          # Prepare a non-secret .env as before
-          cat > backend/.env << 'EOF'
-          OPENAI_API_KEY=
-          MODEL_NAME=gpt-4o-mini
-          MODEL_TEMPERATURE=0.30
-          MAPPING_CSV=question_mapping_template_new.csv
-          EXCEL_TEMPLATE=bid checklist.xlsx
-          EOF
-          pyinstaller \
-            --onefile \
-            --name scherrer-bid-backend \
-            --add-data "backend/.env:." \
-            --add-data "question_mapping_template_new.csv:." \
-            --add-data "bid checklist.xlsx:." \
-            --paths backend \
-            backend/run_backend.py
+          echo CWD is %CD%
+          py -3 -m pip install --upgrade pip
+          py -3 -m pip install -r backend/requirements.txt
+          py -3 -m pip install pyinstaller
+
+          REM Ensure a minimal non-secret backend .env exists (real secrets are injected at runtime)
+          IF NOT EXIST backend\.env (
+            echo OPENAI_API_KEY= > backend\.env
+            echo MODEL_NAME=gpt-4o-mini>> backend\.env
+            echo MODEL_TEMPERATURE=0.30>> backend\.env
+          )
+
+          REM Build ONEDIR so the EXE is at dist\scherrer-bid-backend\scherrer-bid-backend.exe
+          py -3 -m PyInstaller --noconfirm --onedir --name scherrer-bid-backend backend\run_backend.py
+
+          dir /b dist
 
       - name: Copy backend exe into Tauri bundle resources
-        shell: bash
+        shell: cmd
         run: |
-          mkdir -p src_tauri/resources
-          cp dist/scherrer-bid-backend.exe src_tauri/resources/
+          IF NOT EXIST src_tauri\resources mkdir src_tauri\resources
+          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe src_tauri\resources\scherrer-bid-backend.exe
+          dir src_tauri\resources
 
       - name: Install Windows bundlers (NSIS and WiX)
         shell: powershell
