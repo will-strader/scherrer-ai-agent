@@ -9,6 +9,9 @@ on:
 jobs:
   build-windows-exe:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: cmd
 
     env:
       # Your backend reads from .env at runtime; during packaging we also embed assets.
@@ -65,16 +68,7 @@ jobs:
           ls -la backend
 
       - name: Build exe with PyInstaller
-        shell: cmd
-        run: |
-          pyinstaller ^
-            --onefile ^
-            --name scherrer-bid-backend ^
-            --add-data "backend\.env;." ^
-            --add-data "question_mapping_template_new.csv;." ^
-            --add-data "bid checklist.xlsx;." ^
-            --paths backend ^
-            backend\run_backend.py
+        run: pyinstaller --onefile --name scherrer-bid-backend --add-data "backend\.env;." --add-data "question_mapping_template_new.csv;." --add-data "bid checklist.xlsx;." --paths backend backend\run_backend.py
 
       - name: Upload artifact (exe)
         uses: actions/upload-artifact@v4
