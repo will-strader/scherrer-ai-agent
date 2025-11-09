@@ -9,21 +9,12 @@ on:
 jobs:
   build-windows-exe:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: cmd
-
-    env:
-      # Your backend reads from .env at runtime; during packaging we also embed assets.
-      # DO NOT hardcode secrets here — set them in GitHub > Settings > Secrets and variables > Actions
-      # and reference them as needed at runtime (not during build unless truly required).
-      PYTHONUTF8: "1"
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -37,42 +28,41 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Install backend deps
+        shell: pwsh
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r backend/requirements.txt
           python -m pip install pyinstaller
 
-      # Build a minimal .env that reads from runner env if you want defaults at runtime.
-      # Prefer keeping secrets OUT of the binary; end users should supply their own .env.
+      # Keep secrets OUT of the exe; end users can edit this .env after install.
       - name: Prepare runtime .env (no secrets)
+        shell: pwsh
         working-directory: backend
-        shell: bash
         run: |
-          cat > .env << 'EOF'
+          @"
           # Placeholders; end users should edit this on their machine.
           OPENAI_API_KEY=
           MODEL_NAME=gpt-4o-mini
           MODEL_TEMPERATURE=0.30
 
-          # Default asset paths (relative to exe using paths.py)
+          # Default asset paths (resolved by paths.py)
           MAPPING_CSV=question_mapping_template_new.csv
           EXCEL_TEMPLATE=bid checklist.xlsx
-          EOF
+          "@ | Out-File -FilePath .env -Encoding UTF8 -Force
 
       - name: Verify inputs exist
-        shell: bash
+        shell: pwsh
         run: |
-          echo "Repo root contents:"
-          ls -la .
-          echo "Backend directory contents:"
-          ls -la backend
+          gci -Force .
+          gci -Force backend
 
+      # IMPORTANT: run under PowerShell and avoid line continuations that break parsing.
       - name: Build exe with PyInstaller
-        shell: cmd
+        shell: pwsh
         run: >
           pyinstaller --onefile --name scherrer-bid-backend
-          --add-data backend\.env;.
-          --add-data question_mapping_template_new.csv;.
+          --add-data "backend\.env;."
+          --add-data "question_mapping_template_new.csv;."
           --add-data "bid checklist.xlsx;."
           --paths backend backend\run_backend.py
 
