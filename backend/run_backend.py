@@ -16,7 +16,7 @@ from multiprocessing import freeze_support
 
 import uvicorn
 
-# --- Robust import of the FastAPI app --------------------------------------
+# Robust import of the FastAPI app 
 # When frozen (PyInstaller), modules may be laid out differently. We try the
 # package import first, then fall back to a relative import.
 try:
