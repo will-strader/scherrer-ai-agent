@@ -37,11 +37,6 @@
         "open": true,
         "save": true
       },
-      "fs": {
-        "readTextFile": true,
-        "writeFile": true,
-        "createDir": true
-      },
       "http": {
         "request": true
       }
