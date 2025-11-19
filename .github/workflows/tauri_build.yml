@@ -45,9 +45,9 @@ jobs:
       - name: Copy backend exe into Tauri bundle resources
         shell: cmd
         run: |
-          IF NOT EXIST src_tauri\resources mkdir src_tauri\resources
-          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe src_tauri\resources\scherrer-bid-backend.exe
-          dir src_tauri\resources
+          IF NOT EXIST src_tauri\src-tauri\resources mkdir src_tauri\src-tauri\resources
+          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe src_tauri\src-tauri\resources\scherrer-bid-backend.exe
+          dir src_tauri\src-tauri\resources
 
       - name: Install Windows bundlers (NSIS and WiX)
         shell: powershell
@@ -68,12 +68,13 @@ jobs:
 
       - name: Install Tauri CLI
         shell: bash
-        run: cargo install tauri-cli --locked
+        run: cargo install tauri-cli --locked --version "^2.0.0"
 
       - name: Build Tauri app (Rust-only)
         working-directory: src_tauri
         shell: bash
-        run: cargo tauri build --verbose
+        run: |
+          cargo tauri build --config-path tauri.conf.json --verbose
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
