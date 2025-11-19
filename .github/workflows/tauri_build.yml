@@ -74,7 +74,7 @@ jobs:
         working-directory: src_tauri
         shell: bash
         run: |
-          cargo tauri build --config-path tauri.conf.json --verbose
+          cargo tauri build --config tauri.conf.json --verbose
 
       - name: Upload installer artifacts
         uses: actions/upload-artifact@v4
