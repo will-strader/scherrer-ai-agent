@@ -68,7 +68,7 @@ jobs:
 
       - name: Install Tauri CLI
         shell: bash
-        run: cargo install tauri-cli --locked --version "^2.0.0"
+        run: cargo install tauri-cli --locked --version "^1.5.0"
 
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
