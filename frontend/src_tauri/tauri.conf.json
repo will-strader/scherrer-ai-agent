@@ -51,7 +51,7 @@
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "devPath": "../dist",
-    "distDir": "../dist"
+    "devPath": "../",
+    "distDir": "../"
   }
 }
