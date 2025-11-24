@@ -30,8 +30,10 @@ fn find_free_port() -> u16 {
 /// Resolve the app's resource directory and return the path to the backend exe and resource dir.
 fn resolve_backend_paths(app: &AppHandle<Wry>) -> anyhow::Result<(PathBuf, PathBuf)> {
     // Tauri bundles files listed in tauri.conf.json "bundle.resources".
-    // `tauri::api::path::resource_dir` points to that directory at runtime.
-    let res_dir = tauri::api::path::resource_dir(app.package_info(), &app.config())
+    // The path_resolver().resource_dir() points to that directory at runtime.
+    let res_dir = app
+        .path_resolver()
+        .resource_dir()
         .ok_or_else(|| anyhow::anyhow!("resource_dir not found"))?;
 
     #[cfg(target_os = "windows")]
@@ -41,8 +43,12 @@ fn resolve_backend_paths(app: &AppHandle<Wry>) -> anyhow::Result<(PathBuf, PathB
 
     let exe_path = res_dir.join("resources").join(exe_name);
     if !exe_path.exists() {
-        return Err(anyhow::anyhow!("backend executable not found at {:?}", exe_path));
+        return Err(anyhow::anyhow!(
+            "backend executable not found at {:?}",
+            exe_path
+        ));
     }
+
     Ok((exe_path, res_dir.join("resources")))
 }
 
