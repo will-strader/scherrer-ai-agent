@@ -46,7 +46,7 @@ jobs:
         shell: cmd
         run: |
           IF NOT EXIST frontend\src_tauri\resources mkdir frontend\src_tauri\resources
-          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend.exe
+          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe
           dir frontend\src_tauri\resources
 
       - name: Install Windows bundlers (NSIS and WiX)
