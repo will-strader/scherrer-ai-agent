@@ -70,6 +70,49 @@ jobs:
         shell: bash
         run: cargo install tauri-cli --locked --version "^1.5.0"
 
+      - name: Ensure Windows icon exists (icons/icon.ico)
+        working-directory: frontend/src_tauri
+        shell: bash
+        run: |
+          if [ ! -f icons/icon.ico ]; then
+            mkdir -p icons
+            python - <<'PY'
+            import base64, struct, pathlib
+
+            # 1x1 transparent PNG (embedded)
+            png_b64 = (
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3bQAAAAASUVORK5CYII="
+            )
+            png = base64.b64decode(png_b64)
+
+            # ICO structure: ICONDIR (6 bytes) + ICONDIRENTRY (16 bytes) + PNG data
+            icondir = struct.pack("<HHH", 0, 1, 1)  # reserved=0, type=1, count=1
+            width, height = 1, 1
+            colorcount, reserved = 0, 0
+            planes, bitcount = 1, 32
+            bytes_in_res = len(png)
+            image_offset = 6 + 16
+            entry = struct.pack(
+                "<BBBBHHII",
+                width,
+                height,
+                colorcount,
+                reserved,
+                planes,
+                bitcount,
+                bytes_in_res,
+                image_offset,
+            )
+
+            ico = icondir + entry + png
+            path = pathlib.Path("icons/icon.ico")
+            path.write_bytes(ico)
+            print(f"Wrote {path} ({len(ico)} bytes)")
+            PY
+          fi
+
+          ls -la icons || true
+
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
         shell: bash
