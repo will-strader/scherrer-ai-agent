@@ -46,7 +46,7 @@ jobs:
         shell: cmd
         run: |
           IF NOT EXIST frontend\src_tauri\resources mkdir frontend\src_tauri\resources
-          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe
+          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend-x86_64-pc-windows-msvc.exe
           dir frontend\src_tauri\resources
 
       - name: Install Windows bundlers (NSIS and WiX)
@@ -105,6 +105,11 @@ jobs:
             fi
           fi
           ls -la frontend/dist
+
+      - name: Patch tauri.conf.json for CI (distDir + sidecar)
+        shell: bash
+        run: |
+          python -c "import json,pathlib; p=pathlib.Path('frontend/src_tauri/tauri.conf.json'); d=json.loads(p.read_text(encoding='utf-8')); d.setdefault('build',{}); d['build']['distDir']='../dist'; d['build']['devPath']='../dist/index.html'; t=d.setdefault('tauri',{}); b=t.setdefault('bundle',{}); b['resources']=[r for r in b.get('resources',[]) if not (isinstance(r,str) and 'scherrer-bid-backend' in r)] + ['resources/scherrer-bid-backend-x86_64-pc-windows-msvc.exe']; b['externalBin']=['resources/scherrer-bid-backend']; p.write_text(json.dumps(d,indent=2),encoding='utf-8'); print('Patched tauri.conf.json')"
 
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
