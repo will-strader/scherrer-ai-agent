@@ -12,13 +12,13 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "resources/scherrer-bid-backend.exe",
+        "resources/scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe",
         "resources/.env",
         "resources/question_mapping_template_new.csv",
         "resources/bid_checklist.xlsx"
       ],
       "externalBin": [
-        "resources/scherrer-bid-backend.exe"
+        "resources/scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe"
       ]
     },
     "windows": [
@@ -51,7 +51,7 @@
   "build": {
     "beforeBuildCommand": "",
     "beforeDevCommand": "",
-    "devPath": "../",
-    "distDir": "../"
+    "devPath": "../dist/index.html",
+    "distDir": "../dist"
   }
 }

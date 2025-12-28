@@ -5,12 +5,11 @@ use std::{
     net::{TcpListener},
     path::{PathBuf},
     process::{Child, Command, Stdio},
-    sync::{Arc, Mutex},
+    sync::{Mutex},
     time::Duration,
 };
 
 use tauri::{Manager, AppHandle, State, Wry};
-use tokio::time;
 
 #[derive(Default)]
 struct BackendState {
@@ -113,7 +112,7 @@ fn main() {
             // Start backend on a background task.
             tauri::async_runtime::spawn(async move {
                 // Small delay to let the Tauri window come up.
-                time::sleep(Duration::from_millis(100)).await;
+                std::thread::sleep(Duration::from_millis(100));
 
                 println!("Resolving backend paths...");
                 let (exe_path, resources_dir) = match resolve_backend_paths(&app_handle) {
@@ -144,7 +143,7 @@ fn main() {
                         println!("Backend launched on port {}", port);
 
                         // Give the server a brief moment to bind the port, then notify UI
-                        time::sleep(Duration::from_millis(600)).await;
+                        std::thread::sleep(Duration::from_millis(600));
                         let _ = app_handle.emit_all("backend:ready", serde_json::json!({ "port": port }));
                     }
                     Err(e) => {

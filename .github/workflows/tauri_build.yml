@@ -46,7 +46,7 @@ jobs:
         shell: cmd
         run: |
           IF NOT EXIST frontend\src_tauri\resources mkdir frontend\src_tauri\resources
-                    copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe
+          copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe
           dir frontend\src_tauri\resources
 
       - name: Install Windows bundlers (NSIS and WiX)
@@ -110,6 +110,31 @@ jobs:
           fi
 
           ls -la icons || true
+
+      - name: Ensure frontend dist assets exist
+        shell: bash
+        run: |
+          mkdir -p frontend/dist
+          if [ ! -f frontend/dist/index.html ]; then
+            if [ -f frontend/index.html ]; then
+              cp frontend/index.html frontend/dist/index.html
+            else
+              cat > frontend/dist/index.html <<'HTML'
+              <!doctype html>
+              <html lang="en">
+                <head>
+                  <meta charset="utf-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  <title>Scherrer AI Agent</title>
+                </head>
+                <body>
+                  <h1>Scherrer AI Agent</h1>
+                </body>
+              </html>
+              HTML
+            fi
+          fi
+          ls -la frontend/dist
 
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
