@@ -76,37 +76,7 @@ jobs:
         run: |
           if [ ! -f icons/icon.ico ]; then
             mkdir -p icons
-            python - <<'PY'
-          import base64, struct, pathlib
-
-          # 1x1 transparent PNG (embedded)
-          png_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3bQAAAAASUVORK5CYII="
-          png = base64.b64decode(png_b64)
-
-          # ICO structure: ICONDIR (6 bytes) + ICONDIRENTRY (16 bytes) + PNG data
-          icondir = struct.pack("<HHH", 0, 1, 1)  # reserved=0, type=1, count=1
-          width, height = 1, 1
-          colorcount, reserved = 0, 0
-          planes, bitcount = 1, 32
-          bytes_in_res = len(png)
-          image_offset = 6 + 16
-          entry = struct.pack(
-              "<BBBBHHII",
-              width,
-              height,
-              colorcount,
-              reserved,
-              planes,
-              bitcount,
-              bytes_in_res,
-              image_offset,
-          )
-
-          ico = icondir + entry + png
-          path = pathlib.Path("icons/icon.ico")
-          path.write_bytes(ico)
-          print(f"Wrote {path} ({len(ico)} bytes)")
-          PY
+            python -c "import base64,struct,pathlib; png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3bQAAAAASUVORK5CYII='); icondir=struct.pack('<HHH',0,1,1); width=1; height=1; colorcount=0; reserved=0; planes=1; bitcount=32; bytes_in_res=len(png); image_offset=6+16; entry=struct.pack('<BBBBHHII',width,height,colorcount,reserved,planes,bitcount,bytes_in_res,image_offset); ico=icondir+entry+png; pathlib.Path('icons/icon.ico').write_bytes(ico); print('Wrote icons/icon.ico')"
           fi
 
           ls -la icons || true
@@ -119,19 +89,19 @@ jobs:
             if [ -f frontend/index.html ]; then
               cp frontend/index.html frontend/dist/index.html
             else
-              cat > frontend/dist/index.html <<'HTML'
-              <!doctype html>
-              <html lang="en">
-                <head>
-                  <meta charset="utf-8" />
-                  <meta name="viewport" content="width=device-width, initial-scale=1" />
-                  <title>Scherrer AI Agent</title>
-                </head>
-                <body>
-                  <h1>Scherrer AI Agent</h1>
-                </body>
-              </html>
-              HTML
+              printf '%s\n' \
+                '<!doctype html>' \
+                '<html lang="en">' \
+                '  <head>' \
+                '    <meta charset="utf-8" />' \
+                '    <meta name="viewport" content="width=device-width, initial-scale=1" />' \
+                '    <title>Scherrer AI Agent</title>' \
+                '  </head>' \
+                '  <body>' \
+                '    <h1>Scherrer AI Agent</h1>' \
+                '  </body>' \
+                '</html>' \
+                > frontend/dist/index.html
             fi
           fi
           ls -la frontend/dist
