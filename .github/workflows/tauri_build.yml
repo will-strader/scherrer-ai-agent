@@ -74,10 +74,9 @@ jobs:
         working-directory: frontend/src_tauri
         shell: bash
         run: |
-          if [ ! -f icons/icon.ico ]; then
-            mkdir -p icons
-            python -c "import base64,struct,pathlib; png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X3bQAAAAASUVORK5CYII='); icondir=struct.pack('<HHH',0,1,1); width=1; height=1; colorcount=0; reserved=0; planes=1; bitcount=32; bytes_in_res=len(png); image_offset=6+16; entry=struct.pack('<BBBBHHII',width,height,colorcount,reserved,planes,bitcount,bytes_in_res,image_offset); ico=icondir+entry+png; pathlib.Path('icons/icon.ico').write_bytes(ico); print('Wrote icons/icon.ico')"
-          fi
+          mkdir -p icons
+          # Write a minimal BMP-based .ico (32x32, 32bpp, fully transparent). Avoids PNG-in-ICO decoding issues.
+          python -c "import struct,pathlib; w=h=32; icondir=struct.pack('<HHH',0,1,1); bi_h=h*2; bmp_hdr=struct.pack('<IiiHHIIiiII',40,w,bi_h,1,32,0,w*h*4,0,0,0,0); pixels=b'\x00'*(w*h*4); row_bytes=((w+31)//32)*4; mask=b'\x00'*(row_bytes*h); bmp=bmp_hdr+pixels+mask; entry=struct.pack('<BBBBHHII',w,h,0,0,1,32,len(bmp),6+16); ico=icondir+entry+bmp; pathlib.Path('icons/icon.ico').write_bytes(ico); print('Wrote icons/icon.ico (%d bytes)'%len(ico))"
 
           ls -la icons || true
 
