@@ -107,22 +107,25 @@ fn main() {
         .manage(BackendState::default())
         .setup(|app| {
             let app_handle = app.handle();
-            let state = app_handle.state::<BackendState>().clone();
+            let app_handle_bg = app_handle.clone();
 
             // Start backend on a background task.
             tauri::async_runtime::spawn(async move {
+                // IMPORTANT: create State inside the spawned task so it doesn't borrow a short-lived handle.
+                let state = app_handle_bg.state::<BackendState>().clone();
+
                 // Small delay to let the Tauri window come up.
                 std::thread::sleep(Duration::from_millis(100));
 
                 println!("Resolving backend paths...");
-                let (exe_path, resources_dir) = match resolve_backend_paths(&app_handle) {
+                let (exe_path, resources_dir) = match resolve_backend_paths(&app_handle_bg) {
                     Ok(p) => {
                         println!("Resolved backend: exe = {:?}, resources = {:?}", p.0, p.1);
                         p
                     },
                     Err(e) => {
                         println!("❌ Resolve error: {e}");
-                        let _ = app_handle.emit_all("backend:error", format!("Resolve error: {e}"));
+                        let _ = app_handle_bg.emit_all("backend:error", format!("Resolve error: {e}"));
                         return;
                     }
                 };
@@ -144,11 +147,11 @@ fn main() {
 
                         // Give the server a brief moment to bind the port, then notify UI
                         std::thread::sleep(Duration::from_millis(600));
-                        let _ = app_handle.emit_all("backend:ready", serde_json::json!({ "port": port }));
+                        let _ = app_handle_bg.emit_all("backend:ready", serde_json::json!({ "port": port }));
                     }
                     Err(e) => {
                         println!("Spawn error: {e}");
-                        let _ = app_handle.emit_all("backend:error", format!("Spawn error: {e}"));
+                        let _ = app_handle_bg.emit_all("backend:error", format!("Spawn error: {e}"));
                     }
                 }
             });
