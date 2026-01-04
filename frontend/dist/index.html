@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Bid Assistant (MVP)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; }
+      .card { border: 1px solid #ddd; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+      .row { display: flex; gap: 12px; align-items: center; }
+      button { padding: 10px 14px; border-radius: 10px; border: 1px solid #bbb; cursor: pointer; }
+      pre { background: #f8f8f8; padding: 12px; border-radius: 10px; overflow: auto; }
+      .links a { margin-right: 12px; }
+      .spinner { display: none; width: 24px; height: 24px; border: 3px solid #ddd; border-top-color: #555; border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .error { color: #b00020; background: #ffecec; padding: 8px 12px; border-radius: 10px; border: 1px solid #f4bdbd; margin-top: 8px; }
+      .progress-wrap { margin-top: 10px; }
+      .progress { width: 100%; height: 12px; background: #eee; border-radius: 999px; overflow: hidden; }
+      .progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 400ms ease; }
+      .progress-stats { display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 6px; }
+      .mini-log { font-size: 12px; color: #444; background: #fafafa; border: 1px dashed #ddd; padding: 8px; border-radius: 8px; max-height: 120px; overflow: auto; margin-top: 8px; }
+    </style>
+  </head>
+  <body>
+    <h2>AI Bid Assistant (MVP)</h2>
+
+    <div class="card">
+      <form id="uploadForm">
+        <div class="row">
+          <input type="file" id="pdf" accept="application/pdf" required />
+          <label for="speed" title="How many PDF chunks to process in parallel (backend may auto-fallback if resources are low)" style="font-size: 12px; color:#555;">Speed:</label>
+          <select id="speed" name="speed" style="padding:6px 8px; border-radius:8px; border:1px solid #bbb;">
+            <option value="1">Slow (1)</option>
+            <option value="2" selected>Normal (2)</option>
+            <option value="3">Fast (3)</option>
+          </select>
+          <button type="submit">Upload & Process</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="statusCard" class="card" style="display:none;">
+      <div class="row">
+        <div class="spinner" id="spinner" aria-label="Processing"></div>
+        <div id="progressMsg" style="font-size: 14px; color: #555;">Waiting to start…</div>
+      </div>
+      <div id="errorBox" class="error" style="display:none;"></div>
+      <div>Status: <span id="status">—</span></div>
+      <div class="links" id="links"></div>
+      <div class="progress-wrap">
+        <div class="progress" aria-label="Overall progress">
+          <div id="progressBar"></div>
+        </div>
+        <div class="progress-stats">
+          <span id="progressPct">0%</span>
+          <span id="progressDetail">0 / 0 chunks</span>
+          <span id="progressStage">—</span>
+        </div>
+        <div id="miniLog" class="mini-log" style="display:none;"></div>
+      </div>
+      <pre id="debug"></pre>
+    </div>
+
+    <script>
+      // --- Environment / backend selection ---
+      const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+      const isTauri = typeof window !== "undefined" && !!window.__TAURI__;
+
+      // Tauri global API changed across versions; keep a tiny compatibility layer.
+      function tauriInvoke(cmd, args = {}) {
+        const t = window.__TAURI__;
+        if (!t) return null;
+        if (t.core && typeof t.core.invoke === "function") return t.core.invoke(cmd, args);
+        if (t.tauri && typeof t.tauri.invoke === "function") return t.tauri.invoke(cmd, args);
+        if (typeof t.invoke === "function") return t.invoke(cmd, args);
+        return null;
+      }
+
+      function tauriListen(eventName, handler) {
+        const t = window.__TAURI__;
+        if (!t) return null;
+        const listenFn = t.event && typeof t.event.listen === "function" ? t.event.listen : null;
+        return listenFn ? listenFn(eventName, handler) : null;
+      }
+
+      const DEFAULT_WEB_API = isLocalhost
+        ? "http://127.0.0.1:8000"
+        : "https://scherrer-ai-agent.onrender.com";
+
+      // This will be set to the best-known API base URL.
+      let API = DEFAULT_WEB_API;
+      let apiEnvLabel = isLocalhost ? "Local Backend" : "Render Cloud";
+
+      // Wait until we have a local port (for Tauri) or immediately resolve for web.
+      let resolveApiReady;
+      const apiReady = new Promise((res) => (resolveApiReady = res));
+
+      function setApiBase(baseUrl, label) {
+        API = baseUrl;
+        apiEnvLabel = label;
+        const envEl = document.getElementById("api-env");
+        const urlEl = document.getElementById("api-url");
+        if (envEl) envEl.textContent = apiEnvLabel;
+        if (urlEl) urlEl.textContent = API;
+      }
+
+      async function initApiTarget() {
+        // Web: already determined.
+        if (!isTauri) {
+          setApiBase(DEFAULT_WEB_API, apiEnvLabel);
+          resolveApiReady(true);
+          return;
+        }
+
+        // Tauri: prefer backend_info(), and also listen for backend:ready events.
+        setApiBase("(starting…)", "Desktop App");
+
+        // Listen for readiness/errors (best UX).
+        try {
+          tauriListen("backend:ready", (e) => {
+            const port = e && e.payload && e.payload.port;
+            if (port) {
+              setApiBase(`http://127.0.0.1:${port}`, "Desktop App");
+              resolveApiReady(true);
+            }
+          });
+          tauriListen("backend:error", (e) => {
+            const msg = (e && e.payload) ? JSON.stringify(e.payload) : "Unknown backend error";
+            setApiBase("(backend error)", "Desktop App");
+            const errorBox = document.getElementById("errorBox");
+            if (errorBox) {
+              errorBox.textContent = `Backend failed to start: ${msg}`;
+              errorBox.style.display = "block";
+            }
+          });
+        } catch {}
+
+        // Fallback: ask Rust for the port.
+        try {
+          const inv = tauriInvoke("backend_info", {});
+          if (inv) {
+            const port = await inv;
+            if (port) {
+              setApiBase(`http://127.0.0.1:${port}`, "Desktop App");
+              resolveApiReady(true);
+              return;
+            }
+          }
+        } catch {}
+
+        // If we get here, backend hasn't told us a port yet; allow UI to load, but uploads will wait.
+      }
+
+      // Kick off API detection immediately.
+      initApiTarget();
+
+      // --- UI logic ---
+      const form = document.getElementById('uploadForm');
+      const statusCard = document.getElementById('statusCard');
+      const statusEl = document.getElementById('status');
+      const linksEl = document.getElementById('links');
+      const debugEl = document.getElementById('debug');
+      const spinner = document.getElementById('spinner');
+      const errorBox = document.getElementById('errorBox');
+      const progressMsg = document.getElementById('progressMsg');
+      const submitBtn = document.querySelector('button[type="submit"]');
+
+      const progressBar = document.getElementById('progressBar');
+      const progressPct = document.getElementById('progressPct');
+      const progressDetail = document.getElementById('progressDetail');
+      const progressStage = document.getElementById('progressStage');
+      const miniLog = document.getElementById('miniLog');
+
+      async function ensureApiReadyOrFail() {
+        if (!isTauri) return true;
+        // Show status UI while we wait.
+        statusCard.style.display = 'block';
+        statusEl.textContent = 'starting backend…';
+        spinner.style.display = 'inline-block';
+        progressMsg.textContent = 'Starting local backend…';
+
+        // Wait up to 20 seconds for backend to report a port.
+        const timeoutMs = 20000;
+        const timed = Promise.race([
+          apiReady,
+          new Promise((_, rej) => setTimeout(() => rej(new Error('Timed out waiting for local backend to start.')), timeoutMs))
+        ]);
+
+        await timed;
+        return true;
+      }
+
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
+        const file = document.getElementById('pdf').files[0];
+        if (!file) return;
+
+        // If we're in Tauri, wait for the sidecar backend to come up and give us a port.
+        try {
+          await ensureApiReadyOrFail();
+        } catch (err) {
+          spinner.style.display = 'none';
+          submitBtn.disabled = false;
+          errorBox.textContent = String(err);
+          errorBox.style.display = 'block';
+          return;
+        }
+
+        // UI: show spinner and disable submit
+        spinner.style.display = 'inline-block';
+        progressMsg.textContent = 'Uploading PDF…';
+        submitBtn.disabled = true;
+
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('concurrency', document.getElementById('speed')?.value || '2');
+
+        let resp;
+        try {
+          resp = await fetch(`${API}/process`, {
+            method: 'POST',
+            body: fd
+          });
+        } catch (err) {
+          spinner.style.display = 'none';
+          submitBtn.disabled = false;
+          errorBox.textContent = `Network error while starting the job: ${err}`;
+          errorBox.style.display = 'block';
+          return;
+        }
+        if (!resp.ok) {
+          spinner.style.display = 'none';
+          submitBtn.disabled = false;
+          errorBox.textContent = `Failed to start job: ${resp.status} ${resp.statusText}`;
+          errorBox.style.display = 'block';
+          return;
+        }
+
+        const data = await resp.json();
+
+        progressBar.style.width = '0%';
+        progressPct.textContent = '0%';
+        progressDetail.textContent = '0 / 0 chunks';
+        progressStage.textContent = 'Queued';
+        miniLog.textContent = '';
+        miniLog.style.display = 'none';
+
+        statusCard.style.display = 'block';
+        statusEl.textContent = data.status || 'queued';
+        linksEl.innerHTML = '';
+        debugEl.textContent = '';
+        progressMsg.textContent = 'Processing…';
+
+        const jobId = data.job_id;
+
+        // Adaptive poller with backoff (1.2s -> 5s)
+        let pollMs = 1200;
+        async function pollStatus() {
+          try {
+            const r = await fetch(`${API}/status/${jobId}`);
+            if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+            const s = await r.json();
+
+            statusEl.textContent = s.status;
+            // Progress handling: expect s.progress = { pct, processed_chunks, total_chunks, stage, log }
+            const p = s.progress || {};
+            const pct = Math.max(0, Math.min(100, Math.round(p.pct ?? 0)));
+            progressBar.style.width = pct + '%';
+            progressPct.textContent = pct + '%';
+            progressDetail.textContent = `${p.processed_chunks ?? 0} / ${p.total_chunks ?? 0} chunks`;
+            progressStage.textContent = p.stage || (s.message || 'Working…');
+
+            if (p.log && Array.isArray(p.log) && p.log.length) {
+              miniLog.style.display = 'block';
+              miniLog.textContent = p.log.slice(-12).join('\n');
+            }
+
+            if (s.status === 'done') {
+              spinner.style.display = 'none';
+              submitBtn.disabled = false;
+              progressMsg.textContent = s.message || 'Completed.';
+              if (s.output_paths?.json) {
+                try {
+                  const j = await fetch(`${API}${s.output_paths.json}`);
+                  if (j.ok) {
+                    const jdata = await j.json();
+                    debugEl.textContent = JSON.stringify(jdata, null, 2);
+                  }
+                } catch {}
+              }
+              if (s.output_paths?.excel) {
+                linksEl.innerHTML = `<a href="${API}${s.output_paths.excel}" download>Download Excel</a>`;
+              }
+              return; // stop polling
+            }
+
+            if (s.status === 'error') {
+              spinner.style.display = 'none';
+              submitBtn.disabled = false;
+              progressMsg.textContent = s.message || 'Error.';
+              errorBox.textContent = s.message || 'An unknown error occurred during processing.';
+              errorBox.style.display = 'block';
+              return; // stop polling
+            }
+
+            // Backoff up to 5s as job runs longer
+            pollMs = Math.min(5000, pollMs + 300);
+            setTimeout(pollStatus, pollMs);
+          } catch (err) {
+            spinner.style.display = 'none';
+            submitBtn.disabled = false;
+            progressMsg.textContent = 'Error.';
+            errorBox.textContent = `Error fetching status: ${err}`;
+            errorBox.style.display = 'block';
+          }
+        }
+        pollStatus();
+      };
+    </script>
+    <footer style="font-size: 12px; color: #888; margin-top: 20px; text-align: center;">
+      v1.0.0 — Connected to <span id="api-env">…</span> — <span id="api-url">…</span>
+    </footer>
+  </body>
+</html>
