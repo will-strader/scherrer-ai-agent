@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 import asyncio
 
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException, Depends, Header, Form
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, HTTPException, Depends, Header, Form, Body
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
@@ -16,7 +16,40 @@ from backend.models import ProcessResponse, JobStatus
 from backend.extractor import extract_answers, extract_answers_async
 from backend.writer import fill_template
 from backend.mapping import Mapping, load_mapping
-from backend.config import MAPPING_CSV, EXCEL_TEMPLATE
+from backend.config import MAPPING_CSV, EXCEL_TEMPLATE, UPLOADS, OUTPUTS, get_openai_api_key, set_openai_api_key
+@app.get("/settings")
+def get_settings():
+    """Return non-sensitive settings info.
+
+    IMPORTANT: never return the actual API key."""
+    return {
+        "openai_key_configured": bool((get_openai_api_key() or "").strip()),
+        "version": VERSION,
+    }
+
+
+@app.post("/settings/openai_key")
+def save_openai_key(api_key: str = Body(..., embed=True)):
+    """Save the OpenAI API key for this user (plain text in per-user config.json).
+
+    This is intended for local desktop usage."""
+    key = (api_key or "").strip()
+    if not key:
+        raise HTTPException(status_code=400, detail="api_key cannot be empty")
+
+    # Light validation (don't be too strict; keys can change formats over time)
+    if len(key) < 20:
+        raise HTTPException(status_code=400, detail="api_key looks too short")
+
+    set_openai_api_key(key)
+    return {"ok": True, "openai_key_configured": True}
+
+
+@app.delete("/settings/openai_key")
+def clear_openai_key():
+    """Remove the saved OpenAI API key (env var may still apply)."""
+    set_openai_api_key("")
+    return {"ok": True, "openai_key_configured": bool((get_openai_api_key() or "").strip())}
 
 load_dotenv()
 
@@ -34,12 +67,9 @@ else:
 def verify_frontend_token(request):
     return True
 
-BASE = Path(__file__).resolve().parent
-UPLOADS = BASE / "storage" / "uploads"
-OUTPUTS = BASE / "storage" / "outputs"
-JOBS_DIR = BASE / "storage" / "jobs"
-UPLOADS.mkdir(parents=True, exist_ok=True)
-OUTPUTS.mkdir(parents=True, exist_ok=True)
+# IMPORTANT: Use user-writable storage paths from backend.config.
+# (On Windows installs under Program Files, the app directory is not writable.)
+JOBS_DIR = UPLOADS.parent / "jobs"
 JOBS_DIR.mkdir(parents=True, exist_ok=True)
 
 RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "60"))
@@ -50,7 +80,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://scherrer-ai-agent-frontend.onrender.com",
-        "http://localhost:5173"
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "tauri://localhost",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
     ],
     allow_methods=["*"],
     allow_headers=["*"],

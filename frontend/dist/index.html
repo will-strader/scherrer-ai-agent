@@ -22,7 +22,29 @@
     </style>
   </head>
   <body>
+
     <h2>AI Bid Assistant (MVP)</h2>
+
+    <div class="card" id="settingsCard">
+      <div style="display:flex; justify-content: space-between; align-items:center; gap: 12px; flex-wrap: wrap;">
+        <h3 style="margin: 0; font-size: 16px;">Settings</h3>
+        <div id="keyStatus" style="font-size: 12px; color: #666;">Checking OpenAI key status…</div>
+      </div>
+
+      <div style="margin-top: 10px; font-size: 13px; color: #444;">
+        OpenAI API Key (stored locally on this computer in plain text)
+      </div>
+
+      <div class="row" style="margin-top: 8px; flex-wrap: wrap;">
+        <input id="openaiKey" type="password" placeholder="sk-..." style="flex:1; min-width: 260px; padding: 10px 12px; border-radius: 10px; border: 1px solid #bbb;" />
+        <button id="saveKeyBtn" type="button">Save Key</button>
+        <button id="clearKeyBtn" type="button">Clear</button>
+      </div>
+
+      <div style="margin-top: 8px; font-size: 12px; color: #777; line-height: 1.4;">
+        If you prefer, you can also set <code>OPENAI_API_KEY</code> as an environment variable. Environment variables take precedence over the saved key.
+      </div>
+    </div>
 
     <div class="card">
       <form id="uploadForm">
@@ -163,7 +185,82 @@
       const spinner = document.getElementById('spinner');
       const errorBox = document.getElementById('errorBox');
       const progressMsg = document.getElementById('progressMsg');
+
       const submitBtn = document.querySelector('button[type="submit"]');
+
+      // --- Settings UI (OpenAI key) ---
+      const openaiKeyInput = document.getElementById('openaiKey');
+      const saveKeyBtn = document.getElementById('saveKeyBtn');
+      const clearKeyBtn = document.getElementById('clearKeyBtn');
+      const keyStatusEl = document.getElementById('keyStatus');
+
+      async function refreshKeyStatus() {
+        try {
+          // Ensure API base is resolved (especially in Tauri)
+          if (isTauri) {
+            await apiReady;
+          }
+          const r = await fetch(`${API}/settings`);
+          if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+          const s = await r.json();
+          keyStatusEl.textContent = s.openai_key_configured
+            ? 'OpenAI key is set ✓'
+            : 'OpenAI key not set (processing will fail until you add one)';
+        } catch (err) {
+          keyStatusEl.textContent = `Unable to check OpenAI key status: ${err}`;
+        }
+      }
+
+      saveKeyBtn.addEventListener('click', async () => {
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
+        const key = (openaiKeyInput.value || '').trim();
+        if (!key) {
+          errorBox.textContent = 'Please paste an OpenAI API key first.';
+          errorBox.style.display = 'block';
+          return;
+        }
+
+        try {
+          if (isTauri) {
+            await ensureApiReadyOrFail();
+          }
+          const r = await fetch(`${API}/settings/openai_key`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_key: key })
+          });
+          const txt = await r.text();
+          if (!r.ok) throw new Error(txt || `${r.status} ${r.statusText}`);
+          openaiKeyInput.value = '';
+          await refreshKeyStatus();
+        } catch (err) {
+          errorBox.textContent = `Failed to save key: ${err}`;
+          errorBox.style.display = 'block';
+        }
+      });
+
+      clearKeyBtn.addEventListener('click', async () => {
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
+        try {
+          if (isTauri) {
+            await ensureApiReadyOrFail();
+          }
+          const r = await fetch(`${API}/settings/openai_key`, { method: 'DELETE' });
+          const txt = await r.text();
+          if (!r.ok) throw new Error(txt || `${r.status} ${r.statusText}`);
+          await refreshKeyStatus();
+        } catch (err) {
+          errorBox.textContent = `Failed to clear key: ${err}`;
+          errorBox.style.display = 'block';
+        }
+      });
+
+      // Initial settings fetch
+      refreshKeyStatus();
 
       const progressBar = document.getElementById('progressBar');
       const progressPct = document.getElementById('progressPct');

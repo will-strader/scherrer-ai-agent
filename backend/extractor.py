@@ -6,12 +6,33 @@ import pdfplumber
 from typing import List, Dict, Optional, Callable
 import asyncio
 import random
+import os
 from openai import AsyncOpenAI
 
-from .config import MODEL_NAME, MODEL_TEMPERATURE
+from .config import MODEL_NAME, MODEL_TEMPERATURE, get_openai_api_key
 from .mapping import Mapping
 
-async_client = AsyncOpenAI()
+
+_async_client: AsyncOpenAI | None = None
+
+
+def _get_async_client() -> AsyncOpenAI:
+    """Create the OpenAI client only when we actually need it.
+
+    This prevents the backend from crashing at import-time when the API key
+    isn't set yet (common on first install)."""
+    global _async_client
+    if _async_client is not None:
+        return _async_client
+
+    api_key = (get_openai_api_key() or "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "OpenAI API key is not set. Add it in the app Settings (recommended) or set OPENAI_API_KEY as an environment variable."
+        )
+
+    _async_client = AsyncOpenAI(api_key=api_key)
+    return _async_client
 
 # --- safety clamp on MODEL_TEMPERATURE from env ---
 try:
@@ -172,7 +193,7 @@ async def _process_chunk(
     max_attempts = 5
     while True:
         try:
-            resp = await async_client.chat.completions.create(
+            resp = await _get_async_client().chat.completions.create(
                 model=MODEL_NAME,
                 messages=[
                     {"role": "system", "content": system_msg},

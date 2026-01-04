@@ -1,13 +1,8 @@
 import os
-from pathlib import Path
 import sys
+import json
+from pathlib import Path
 from dotenv import load_dotenv
-from openai import OpenAI
-
-try:
-    import keyring  # optional, for Windows Credential Manager
-except Exception:
-    keyring = None
 
 BASE = Path(__file__).resolve().parent
 
@@ -44,6 +39,69 @@ PORT = int(os.getenv("PORT", "18000").strip() or "18000")
 # Use a per-user data directory when packaged.
 APP_NAME = (os.getenv("APP_NAME") or "Scherrer Bid Assistant").strip() or "Scherrer Bid Assistant"
 
+# --- User config (plain text) ---
+# Stored in a per-user directory (DATA_DIR) so installs under Program Files remain read-only.
+# Example path on Windows:
+#   %LOCALAPPDATA%\Scherrer Bid Assistant\config.json
+CONFIG_FILE: Path | None = None
+
+
+def _read_json(path: Path) -> dict:
+    try:
+        if not path.exists():
+            return {}
+        return json.loads(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+
+
+def _atomic_write_json(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    tmp.replace(path)
+
+
+def load_user_config() -> dict:
+    if CONFIG_FILE is None:
+        return {}
+    return _read_json(CONFIG_FILE)
+
+
+def save_user_config(cfg: dict) -> None:
+    if CONFIG_FILE is None:
+        raise RuntimeError("CONFIG_FILE not initialized")
+    _atomic_write_json(CONFIG_FILE, cfg)
+
+
+def set_openai_api_key(api_key: str) -> None:
+    """Persist the OpenAI API key in the user config file (plain text).
+
+    NOTE: This is a convenience for local desktop use. Do not commit keys into the repo."""
+    key = (api_key or "").strip()
+    cfg = load_user_config()
+    if key:
+        cfg["openai_api_key"] = key
+    else:
+        cfg.pop("openai_api_key", None)
+    save_user_config(cfg)
+
+
+def get_openai_api_key() -> str:
+    """Resolve the OpenAI API key.
+
+    Precedence:
+      1) Environment variable OPENAI_API_KEY
+      2) Per-user config file (CONFIG_FILE)
+    """
+    env = (os.getenv("OPENAI_API_KEY") or "").strip()
+    if env:
+        return env
+    cfg = load_user_config()
+    val = (cfg.get("openai_api_key") or "").strip() if isinstance(cfg, dict) else ""
+    return val
+
+
 def _default_user_data_dir() -> Path:
     # Allow explicit override for debugging / enterprise deployments.
     override = (os.getenv("SCHERRER_DATA_DIR") or os.getenv("APP_DATA_DIR") or "").strip()
@@ -58,6 +116,7 @@ def _default_user_data_dir() -> Path:
 
     # macOS/Linux
     return (Path.home() / f".{APP_NAME.lower().replace(' ', '-')}").resolve()
+
 
 def _should_use_user_data_dir() -> bool:
     # If running in a packaged context, prefer user data dir.
@@ -74,11 +133,16 @@ def _should_use_user_data_dir() -> bool:
     except Exception:
         return True
 
+
 if _should_use_user_data_dir():
     DATA_DIR = _default_user_data_dir()
     STORAGE_ROOT = DATA_DIR / "storage"
 else:
+    DATA_DIR = BASE
     STORAGE_ROOT = BASE / "storage"
+
+# Now that we know DATA_DIR, define the per-user config file location.
+CONFIG_FILE = (DATA_DIR / "config.json").resolve()
 
 UPLOADS = STORAGE_ROOT / "uploads"
 OUTPUTS = STORAGE_ROOT / "outputs"
@@ -91,22 +155,12 @@ MAX_CONCURRENCY = int(os.getenv("MAX_CONCURRENCY", "3"))
 MIN_CONCURRENCY = int(os.getenv("MIN_CONCURRENCY", "1"))
 CHUNK_BATCH_BYTES = int(os.getenv("CHUNK_BATCH_BYTES", "2000000"))  # ~2MB per request target
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+OPENAI_API_KEY = get_openai_api_key()
 OPENAI_PROJECT = os.getenv("OPENAI_PROJECT", "").strip()
 MODEL_NAME     = os.getenv("MODEL_NAME", "gpt-4o-mini").strip()
 MODEL_TEMPERATURE = float(os.getenv("MODEL_TEMPERATURE", "0"))
 RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "60"))
 FRONTEND_ACCESS_TOKEN = os.getenv("FRONTEND_ACCESS_TOKEN", "").strip()
-
-# Try Windows Credential Manager if no key in env
-if not OPENAI_API_KEY and sys.platform == "win32" and keyring:
-    try:
-        stored = keyring.get_password("AI Bid Assistant", "openai_api_key")
-        if stored:
-            OPENAI_API_KEY = stored.strip()
-            print("[config] OPENAI_API_KEY loaded from Windows Credential Manager")
-    except Exception as e:
-        print(f"[config] WARNING: keyring lookup failed: {e}")
 
 # Resolve the base path for bundled assets.
 # - In dev: repo root (folder containing backend/)
@@ -156,15 +210,37 @@ _assert_exists(EXCEL_TEMPLATE, "Excel template")
 
 # Sanity checks
 if not OPENAI_API_KEY:
-    print(f"[config] ERROR: OPENAI_API_KEY is empty. Set it in backend/.env or Windows Credential Manager")
+    print("[config] WARNING: OPENAI_API_KEY is empty. The backend will start, but requests that use OpenAI will fail until a key is provided.")
 elif OPENAI_API_KEY.startswith("sk-admin--"):
     print("[config] ERROR: Admin keys (sk-admin--) are not valid for API calls. Use sk-proj- or sk-svcacct- with OPENAI_PROJECT.")
 elif OPENAI_API_KEY.startswith(("sk-proj-", "sk-svcacct-")):
     if not OPENAI_PROJECT:
         print("[config] ERROR: Detected project/service-account key but OPENAI_PROJECT is not set. Requests will 401.")
 
-# OpenAI client (singleton)
-if OPENAI_PROJECT:
-    CLIENT = OpenAI(api_key=OPENAI_API_KEY, project=OPENAI_PROJECT)
-else:
-    CLIENT = OpenAI(api_key=OPENAI_API_KEY)
+# OpenAI client
+# IMPORTANT: Do not initialize the client at import time.
+# If the API key is missing, the backend should still boot and only error when a request
+# actually needs OpenAI.
+CLIENT = None
+
+
+def get_openai_client():
+    """Return an OpenAI client, creating it on demand."""
+    global CLIENT
+    if CLIENT is not None:
+        return CLIENT
+
+    api_key = get_openai_api_key()
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY is not set. Add it in the app Settings (recommended) or set it as an environment variable."
+        )
+
+    # Import lazily so config import never fails in packaged builds.
+    from openai import OpenAI  # type: ignore
+
+    if OPENAI_PROJECT:
+        CLIENT = OpenAI(api_key=api_key, project=OPENAI_PROJECT)
+    else:
+        CLIENT = OpenAI(api_key=api_key)
+    return CLIENT
