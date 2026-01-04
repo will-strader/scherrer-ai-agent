@@ -109,6 +109,10 @@
         ? "http://127.0.0.1:8000"
         : "https://scherrer-ai-agent.onrender.com";
 
+      // Tauri fallback: if the sidecar is already listening on the default port but the
+      // port-discovery handshake fails, we can still proceed.
+      const TAURI_FALLBACK_API = "http://127.0.0.1:18000";
+
       // This will be set to the best-known API base URL.
       let API = DEFAULT_WEB_API;
       let apiEnvLabel = isLocalhost ? "Local Backend" : "Render Cloud";
@@ -167,6 +171,16 @@
               resolveApiReady(true);
               return;
             }
+          }
+        } catch {}
+
+        // Last-chance fallback: if the backend is already up on the default port, use it.
+        try {
+          const r = await fetch(`${TAURI_FALLBACK_API}/ping`);
+          if (r.ok) {
+            setApiBase(TAURI_FALLBACK_API, "Desktop App");
+            resolveApiReady(true);
+            return;
           }
         } catch {}
 
@@ -280,7 +294,23 @@
         const timeoutMs = 20000;
         const timed = Promise.race([
           apiReady,
-          new Promise((_, rej) => setTimeout(() => rej(new Error('Timed out waiting for local backend to start.')), timeoutMs))
+          new Promise((res, rej) =>
+            setTimeout(() => {
+              (async () => {
+                // Try the known-good default port before failing.
+                try {
+                  const r = await fetch(`${TAURI_FALLBACK_API}/ping`);
+                  if (r.ok) {
+                    setApiBase(TAURI_FALLBACK_API, 'Desktop App');
+                    resolveApiReady(true);
+                    res(true);
+                    return;
+                  }
+                } catch {}
+                rej(new Error('Timed out waiting for local backend to start.'));
+              })();
+            }, timeoutMs)
+          )
         ]);
 
         await timed;
