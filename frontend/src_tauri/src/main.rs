@@ -26,29 +26,42 @@ fn find_free_port() -> u16 {
         .port()
 }
 
-/// Resolve the app's resource directory and return the path to the backend exe and resource dir.
+/// Resolve the app's resources root and return (backend_exe_path, resources_root).
+///
+/// In CI we bundle the *full* PyInstaller ONEDIR output under:
+///   resources/scherrer-bid-backend/   (contains scherrer-bid-backend(.exe) + _internal/)
+///
+/// We keep `resources_root` as the working directory so the backend can still find
+/// other packaged files like `.env`, `bid_checklist.xlsx`, templates, etc.
 fn resolve_backend_paths(app: &AppHandle<Wry>) -> anyhow::Result<(PathBuf, PathBuf)> {
-    // Tauri bundles files listed in tauri.conf.json "bundle.resources".
-    // The path_resolver().resource_dir() points to that directory at runtime.
     let res_dir = app
         .path_resolver()
         .resource_dir()
         .ok_or_else(|| anyhow::anyhow!("resource_dir not found"))?;
 
+    // Depending on platform/packaging, resource_dir() may already be the final resources folder,
+    // or it may contain a nested `resources/` directory. Support both.
+    let nested = res_dir.join("resources");
+    let resources_root = if nested.exists() { nested } else { res_dir };
+
     #[cfg(target_os = "windows")]
     let exe_name = "scherrer-bid-backend.exe";
     #[cfg(not(target_os = "windows"))]
-    let exe_name = "scherrer-bid-backend"; // in case you test on macOS
+    let exe_name = "scherrer-bid-backend";
 
-    let exe_path = res_dir.join("resources").join(exe_name);
+    // Prefer the ONEDIR copy that lives inside `scherrer-bid-backend/` (next to `_internal/`).
+    let backend_dir = resources_root.join("scherrer-bid-backend");
+    let exe_path = backend_dir.join(exe_name);
+
     if !exe_path.exists() {
         return Err(anyhow::anyhow!(
-            "backend executable not found at {:?}",
-            exe_path
+            "backend executable not found at {:?} (expected ONEDIR under {:?})",
+            exe_path,
+            backend_dir
         ));
     }
 
-    Ok((exe_path, res_dir.join("resources")))
+    Ok((exe_path, resources_root))
 }
 
 /// Try to load a .env file from resources if present (no-op if missing).
@@ -67,10 +80,13 @@ fn spawn_backend(exe: &PathBuf, resources_dir: &PathBuf, port: u16) -> anyhow::R
     // Ensure .env (if any) is loaded into the environment first.
     try_load_env(resources_dir);
 
-    // Inherit current environment, override PORT, and set working dir to resources (so relative paths work).
+    // Inherit current environment, override PORT.
+    // Keep working dir at the resources root so relative paths to packaged assets work.
+    // (The PyInstaller `_internal/` lookup is relative to the EXE directory.)
     let mut cmd = Command::new(exe);
     cmd.current_dir(resources_dir)
-        .env("PORT", port.to_string());
+        .env("PORT", port.to_string())
+        .env("TAURI_RESOURCES_DIR", resources_dir.to_string_lossy().to_string());
     // In debug builds, inherit stdout/stderr so we can see backend logs in the Tauri console.
     // In release builds, silence the console.
     #[cfg(debug_assertions)]

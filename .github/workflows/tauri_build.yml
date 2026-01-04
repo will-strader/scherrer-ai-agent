@@ -40,14 +40,24 @@ jobs:
           REM Build ONEDIR so the EXE is at dist\scherrer-bid-backend\scherrer-bid-backend.exe
           py -3 -m PyInstaller --noconfirm --onedir --name scherrer-bid-backend backend\run_backend.py
 
-          dir /b dist
+          REM List the PyInstaller onedir output for debugging
+          dir dist\scherrer-bid-backend
 
-      - name: Copy backend exe into Tauri bundle resources
+      - name: Copy backend onedir into Tauri bundle resources
         shell: cmd
         run: |
+          REM Ensure target resource folders exist
           IF NOT EXIST frontend\src_tauri\resources mkdir frontend\src_tauri\resources
+          IF NOT EXIST frontend\src_tauri\resources\scherrer-bid-backend mkdir frontend\src_tauri\resources\scherrer-bid-backend
+
+          REM Copy the entire PyInstaller ONEDIR output (exe + _internal) into resources/scherrer-bid-backend
+          xcopy /E /I /Y dist\scherrer-bid-backend\* frontend\src_tauri\resources\scherrer-bid-backend\
+
+          REM Also place a copy of the backend exe at the resources root for Tauri externalBin resolution
           copy /Y dist\scherrer-bid-backend\scherrer-bid-backend.exe frontend\src_tauri\resources\scherrer-bid-backend-x86_64-pc-windows-msvc.exe
+
           dir frontend\src_tauri\resources
+          dir frontend\src_tauri\resources\scherrer-bid-backend
 
       - name: Install Windows bundlers (NSIS and WiX)
         shell: powershell
@@ -108,7 +118,7 @@ jobs:
       - name: Patch tauri.conf.json for CI (distDir + sidecar)
         shell: bash
         run: |
-          python -c "import json,pathlib; p=pathlib.Path('frontend/src_tauri/tauri.conf.json'); d=json.loads(p.read_text(encoding='utf-8')); d.setdefault('build',{}); d['build']['distDir']='../dist'; d['build']['devPath']='../dist/index.html'; t=d.setdefault('tauri',{}); b=t.setdefault('bundle',{}); b['resources']=[r for r in b.get('resources',[]) if not (isinstance(r,str) and 'scherrer-bid-backend' in r)] + ['resources/scherrer-bid-backend-x86_64-pc-windows-msvc.exe']; b['externalBin']=['resources/scherrer-bid-backend']; p.write_text(json.dumps(d,indent=2),encoding='utf-8'); print('Patched tauri.conf.json')"
+          python -c "import json,pathlib; p=pathlib.Path('frontend/src_tauri/tauri.conf.json'); d=json.loads(p.read_text(encoding='utf-8')); d.setdefault('build',{}); d['build']['distDir']='../dist'; d['build']['devPath']='../dist/index.html'; t=d.setdefault('tauri',{}); b=t.setdefault('bundle',{}); res=[r for r in b.get('resources',[]) if not (isinstance(r,str) and ('scherrer-bid-backend' in r))]; res += ['resources/scherrer-bid-backend', 'resources/scherrer-bid-backend-x86_64-pc-windows-msvc.exe']; b['resources']=res; b['externalBin']=['resources/scherrer-bid-backend-x86_64-pc-windows-msvc']; p.write_text(json.dumps(d,indent=2),encoding='utf-8'); print('Patched tauri.conf.json')"
 
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
