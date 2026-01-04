@@ -12,13 +12,10 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "resources/scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe",
+        "resources/scherrer-bid-backend",
         "resources/.env",
         "resources/question_mapping_template_new.csv",
         "resources/bid_checklist.xlsx"
-      ],
-      "externalBin": [
-        "resources/scherrer-bid-backend.exe-x86_64-pc-windows-msvc.exe"
       ]
     },
     "windows": [
@@ -45,7 +42,7 @@
       "active": false
     },
     "security": {
-      "csp": "default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self' http://localhost:*;"
+      "csp": "default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: data:; connect-src 'self' http://localhost:* http://127.0.0.1:* https://scherrer-ai-agent.onrender.com;"
     }
   },
   "build": {
