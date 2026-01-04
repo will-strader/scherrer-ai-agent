@@ -17,6 +17,8 @@ from backend.extractor import extract_answers, extract_answers_async
 from backend.writer import fill_template
 from backend.mapping import Mapping, load_mapping
 from backend.config import MAPPING_CSV, EXCEL_TEMPLATE, UPLOADS, OUTPUTS, get_openai_api_key, set_openai_api_key
+
+app = FastAPI(title="AI Bid Assistant (MVP)")
 @app.get("/settings")
 def get_settings():
     """Return non-sensitive settings info.
@@ -51,7 +53,6 @@ def clear_openai_key():
     set_openai_api_key("")
     return {"ok": True, "openai_key_configured": bool((get_openai_api_key() or "").strip())}
 
-load_dotenv()
 
 print(f"[config] AI Bid Assistant backend version {VERSION} initialized")
 
@@ -74,7 +75,6 @@ JOBS_DIR.mkdir(parents=True, exist_ok=True)
 
 RETENTION_DAYS = int(os.getenv("RETENTION_DAYS", "60"))
 
-app = FastAPI(title="AI Bid Assistant (MVP)")
 
 app.add_middleware(
     CORSMiddleware,
