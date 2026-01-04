@@ -118,7 +118,7 @@ jobs:
       - name: Patch tauri.conf.json for CI (distDir + sidecar)
         shell: bash
         run: |
-          python -c "import json,pathlib; p=pathlib.Path('frontend/src_tauri/tauri.conf.json'); d=json.loads(p.read_text(encoding='utf-8')); d.setdefault('build',{}); d['build']['distDir']='../dist'; d['build']['devPath']='../dist/index.html'; t=d.setdefault('tauri',{}); b=t.setdefault('bundle',{}); res=[r for r in b.get('resources',[]) if not (isinstance(r,str) and ('scherrer-bid-backend' in r))]; res += ['resources/scherrer-bid-backend', 'resources/scherrer-bid-backend-x86_64-pc-windows-msvc.exe']; b['resources']=res; b['externalBin']=['resources/scherrer-bid-backend-x86_64-pc-windows-msvc']; p.write_text(json.dumps(d,indent=2),encoding='utf-8'); print('Patched tauri.conf.json')"
+          python -c "import json,pathlib; p=pathlib.Path('frontend/src_tauri/tauri.conf.json'); d=json.loads(p.read_text(encoding='utf-8')); d.setdefault('build',{}); d['build']['distDir']='../dist'; d['build']['devPath']='../dist/index.html'; t=d.setdefault('tauri',{}); b=t.setdefault('bundle',{}); res=[r for r in b.get('resources',[]) if not (isinstance(r,str) and ('scherrer-bid-backend' in r))]; res += ['resources/scherrer-bid-backend', 'resources/scherrer-bid-backend-x86_64-pc-windows-msvc.exe']; b['resources']=res; b['externalBin']=['resources/scherrer-bid-backend']; p.write_text(json.dumps(d,indent=2),encoding='utf-8'); print('Patched tauri.conf.json')"
 
       - name: Build Tauri app (Rust-only)
         working-directory: frontend/src_tauri
