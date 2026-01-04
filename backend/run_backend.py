@@ -16,19 +16,51 @@ from multiprocessing import freeze_support
 
 import uvicorn
 
-# Robust import of the FastAPI app 
-# When frozen (PyInstaller), modules may be laid out differently. We try the
-# package import first, then fall back to a relative import.
+# Robust import of the FastAPI app
+# In dev, `backend/` is a normal package.
+# In PyInstaller onedir builds, the executable lives next to `_internal/` and
+# we may be launched with a working directory that is not the package root.
+# Ensure common roots are on sys.path, then import `backend.app`.
+
+def _ensure_import_paths() -> None:
+    candidates: list[Path] = []
+
+    # Repo/dev: .../backend/run_backend.py -> add repo root
+    try:
+        candidates.append(Path(__file__).resolve().parent.parent)
+    except Exception:
+        pass
+
+    # PyInstaller onefile uses _MEIPASS; onedir often doesn't need it but it's safe.
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        candidates.append(Path(meipass).resolve())
+
+    # Executable directory (PyInstaller onedir)
+    try:
+        candidates.append(Path(sys.executable).resolve().parent)
+    except Exception:
+        pass
+
+    # Current working directory (Tauri may set this to resources root)
+    try:
+        candidates.append(Path.cwd().resolve())
+    except Exception:
+        pass
+
+    for p in candidates:
+        if p and p.exists():
+            sp = str(p)
+            if sp not in sys.path:
+                sys.path.insert(0, sp)
+
+
+_ensure_import_paths()
+
 try:
     from backend.app import app  # type: ignore
-except Exception:  # pragma: no cover
-    # If frozen, __file__ can be inside a temp dir; _MEIPASS points to bundle.
-    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent)).resolve()
-    sys.path.insert(0, str(base))
-    try:
-        from app import app  # type: ignore
-    except Exception as e:  # pragma: no cover
-        raise RuntimeError(f"Unable to import FastAPI app: {e}")
+except Exception as e:  # pragma: no cover
+    raise RuntimeError(f"Unable to import FastAPI app (backend.app): {e}")
 
 
 # --- Platform quirks (especially Windows) ----------------------------------
@@ -40,10 +72,22 @@ if sys.platform.startswith("win"):
         pass
 
 
-# --- Logging to a rotating file next to the executable ---------------------
+# --- Logging to a user-writable directory ----------------------------------
 def _setup_logging() -> Path:
-    exe_dir = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve()).parent)
-    log_dir = exe_dir / "logs"
+    # IMPORTANT: Do not write logs next to the executable if installed under
+    # Program Files. Use a per-user directory.
+    app_name = (os.getenv("APP_NAME") or "Scherrer Bid Assistant").strip() or "Scherrer Bid Assistant"
+
+    override = (os.getenv("SCHERRER_DATA_DIR") or os.getenv("APP_DATA_DIR") or "").strip()
+    if override:
+        base_dir = Path(override).expanduser().resolve()
+    elif sys.platform.startswith("win"):
+        base = (os.getenv("LOCALAPPDATA") or os.getenv("APPDATA") or "").strip()
+        base_dir = (Path(base) / app_name).resolve() if base else (Path.home() / "AppData" / "Local" / app_name).resolve()
+    else:
+        base_dir = (Path.home() / f".{app_name.lower().replace(' ', '-')}").resolve()
+
+    log_dir = base_dir / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "backend.log"
 
